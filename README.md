@@ -8,7 +8,5 @@ This is an unofficial expansion of [WoWVoiceOver](https://github.com/mrthinger/w
 
 Based on the original Vanilla Voiceover, using [XTTS](https://huggingface.co/coqui/XTTS-v2) and [RVC](https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI) for audio generation.
 
-## To use
-
-Copy the AI\_VoiceOver folder and any of the data folders into the addons folder. The modified addon files should recognize the original Vanilla VO files, plus any of the other data modules that are copied into the addons folder.
+This repo currently has the code used to generate the VO files. for the actual Addon files, please refer to the project page on [CurseForge](https://www.curseforge.com/wow/addons/voiceover-tbc-wotlk). Please raise an issue if you have any comments or questions. Thanks!
 
