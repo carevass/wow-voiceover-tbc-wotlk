@@ -1,0 +1,87 @@
+# --- Core Deps ---
+numpy==1.26.4
+cython>=0.29.30
+scipy>=1.11.2
+torch>=2.1  # CUDA 11.8-compatible version
+torchaudio
+torchcodec
+soundfile>=0.12.0
+librosa>=0.10.0
+scikit-learn>=1.3.0
+numba==0.55.1; python_version < "3.9"
+numba>=0.57.0; python_version >= "3.9"
+inflect>=5.6.0
+tqdm>=4.64.1
+anyascii>=0.3.0
+pyyaml>=6.0
+fsspec>=2023.6.0  # <= 2023.9.1 makes aux tests fail
+aiohttp>=3.8.1
+packaging>=23.1
+mutagen==1.47.0
+
+# --- Inference & API ---
+fastapi
+uvicorn[standard]
+pydantic
+sentencepiece
+python-multipart
+gradio
+
+# --- Examples ---
+flask>=2.0.1
+pysbd>=0.3.4
+
+# --- Notebooks ---
+umap-learn>=0.5.1
+pandas>=1.4,<2.0
+matplotlib>=3.7.0
+
+# --- VO ---
+autopep8==2.0.2
+Pillow==9.4.0
+prompt-toolkit==3.0.38
+PyMySQL==1.0.2
+python-dotenv==1.0.0
+requests==2.28.2
+SLPP==1.2.3
+pydub
+cryptography
+openpyxl
+
+# --- Coqui Stack ---
+coqui-tts-trainer>=0.3.0,<0.4.0
+coqpit-config
+
+
+# --- RVC ---
+av >= 11.0.0
+pyworld >= 0.3.4
+torchcrepe >= 0.0.22
+praat-parselmouth >= 0.4.3
+fairseq
+ffmpeg-python
+tensorboardX
+
+# --- Language Support ---
+jieba
+pypinyin
+hangul_romanize
+gruut[de,es,fr]==2.2.3
+jamo
+nltk
+g2pkk>=0.1.1
+bangla
+bnnumerizer
+bnunicodenormalizer
+
+# --- Tortoise TTS ---
+einops>=0.6.0
+transformers==4.55.4
+
+# --- Bark ---
+encodec>=0.1.1
+
+# --- XTTS ---
+unidecode>=1.3.2
+num2words
+spacy[ja]>=3

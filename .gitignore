@@ -1,0 +1,14 @@
+fine_tuned/*
+voices/*
+rvc/assets/hubert/hubert_base.pt
+rvc/assets/rmvpe/rmvpe.pt
+tts_gossip_custom.py
+tts_dataframe.py
+tts_quest.py
+AI_VoiceOver
+AI_VoiceOverData_VanillaExtra
+AI_VoiceOverData_TBC
+AI_VoiceOverData_WoTLK
+AI_VoiceOverData_VanillaExtra.zip
+AI_VoiceOverData_TBC.zip
+AI_VoiceOverData_WoTLK.zip
