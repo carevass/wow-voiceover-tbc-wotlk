@@ -209,8 +209,9 @@ SELECT
     CASE
     WHEN creature_data.DisplaySexID = 0 THEN bt.MaleText
     WHEN creature_data.DisplaySexID = 1 THEN bt.FemaleText
-    WHEN creature_data.DisplaySexID IS NULL THEN
-        COALESCE(bt.MaleText, bt.FemaleText)
+
+    ELSE COALESCE(NULLIF(bt.MaleText, ''), NULLIF(bt.FemaleText, ''), '')
+
 	END AS TEXT,
     bt.ID as broadcast_text_id,
     creature_data.DisplayRaceID,
