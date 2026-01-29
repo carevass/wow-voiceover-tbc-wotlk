@@ -52,7 +52,16 @@ def clean_quest_data(tts_processor):
 
     # Assign result back to the original DataFrame
     df.loc[mask, 'expansion'] = new_expansion_values
+    
+    #filter out vanilla observations to avoid overlap with original VO
+    #we know that original VO only missed custom models and item/gameobject quests
+    #filtering the rest out should do the trick
 
+    df = df[
+        (df['expansion'] != 0) |
+        (df['type'].isin(['item','gameobject'])) |
+        (df['DisplayRaceID'] == -77)
+    ]
     #add missing quest entries from excel; note all columns must be filled out
 
     df = add_new_entries(df,"corrections/new_entries.xlsx")
@@ -70,15 +79,7 @@ def clean_quest_data(tts_processor):
     print("Applying corrections ...", flush = True)
 
 
-    #filter out vanilla observations to avoid overlap with original VO
-    #we know that original VO only missed custom models and item/gameobject quests
-    #filtering the rest out should do the trick
 
-    df = df[
-        (df['expansion'] != 0) |
-        (df['type'].isin(['item','gameobject'])) |
-        (df['DisplayRaceID'] == -77)
-    ]
 
 
     # Define the mapping of old values to new values

@@ -35,7 +35,7 @@ add_safe_globals([
 ])
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-def merge_short_fragments(chunks, min_length=15):
+def merge_short_fragments(chunks, min_length=20):
     """
     Merge very short chunks (e.g. 'To.', 'All.') with the previous one
     if they're too short to stand alone.
@@ -78,7 +78,7 @@ def get_or_create_latents(model, speaker_key, speaker_wav):
 
 def load_default():
     global default_model, vc
-    print("🔍 Loading default XTTS model from fine_tuned/base")
+    print("Loading default XTTS model from fine_tuned/base")
 
     base_dir = "fine_tuned/base"
     config_path = os.path.join(base_dir, "config.json")
@@ -99,7 +99,7 @@ def load_default():
     model.to(DEVICE)
 
     default_model = model
-    print("✅ Default XTTS model loaded from local base folder.")
+    print(" Default XTTS model loaded from local base folder.")
 load_default()
 
 class TTSEngine:
@@ -154,7 +154,7 @@ class TTSEngine:
                 with gpu_semaphore:
                     if model_key not in loaded_models:
 
-                        print(f"🔍 Loading fine-tuned model from {model_dir}")
+                        print(f"Loading fine-tuned model from {model_dir}")
                         config_path = os.path.join(model_dir, "config.json")
                         vocab_path = os.path.join(model_dir, "vocab.json")   # fine-tuned model
 
@@ -186,7 +186,7 @@ class TTSEngine:
             with loaded_models_lock:
                 for key in list(loaded_models.keys()):
                     if key not in keys_to_keep:
-                        print(f"🧹 Unloading model from cache: {key}")
+                        print(f"Unloading model from cache: {key}")
                         # remove mapping from dict now (so other threads won't try to use it)
                         model_obj = loaded_models.pop(key, None)
                         if model_obj is not None:
@@ -194,11 +194,11 @@ class TTSEngine:
 
             for key, model_obj in keys_to_remove:
                 try:
-                    print(f"🧹 Unloading model from cache: {key}")
+                    print(f"Unloading model from cache: {key}")
                     # move off GPU
                     model_obj.to("cpu")
                 except Exception as e:
-                    print(f"⚠️ Error moving {key} to CPU: {e}")
+                    print(f" Error moving {key} to CPU: {e}")
                 finally:
                     # free cuda cache after model moved
                     try:
@@ -212,11 +212,11 @@ class TTSEngine:
             output_path = self.make_output_path(f"{uuid.uuid4()}.wav")
 
             if speaker_id and speaker_id in tts.speaker_manager.speakers:
-                # ✅ Inbuild / fine-tuned speaker from speakers_xtts.pth
+                # Inbuild / fine-tuned speaker from speakers_xtts.pth
                 speaker_id = ref_path
                 gpt_cond_latent, speaker_embedding = tts.speaker_manager.speakers[speaker_id].values()
             else:
-                # ✅ On-the-fly from reference wav, cached
+                # On-the-fly from reference wav, cached
                 gpt_cond_latent, speaker_embedding = get_or_create_latents(tts, ref_path, ref_path)
 
             chunks = split_into_sentences(text)
@@ -255,37 +255,42 @@ class TTSEngine:
             os.environ.setdefault("rmvpe_root", "rvc/assets/rmvpe")
 
             if os.path.isfile(rvc_model_path):
-                print(f"🎤 Running RVC post-processing for {voice_name}")
+                if index_rate == 0:
+                    print(f"Skipping RVC post-processing for {voice_name}")
+                    sf.write(output_path, final_audio, 24000),
+                    return output_path
+                else:
+                    print(f"Running RVC post-processing for {voice_name}")
 
-                # Load the RVC model if needed
-                if not hasattr(vc, "model") or vc.model_path != rvc_model_path:
-                    vc.get_vc(rvc_model_path)
-                file_index = rvc_index_path if os.path.isfile(rvc_index_path) else None
-                # Apply conversion
-                info, audio_data = vc.vc_single(
-                    sid=0,
-                    input_audio_path=output_path,
-                    f0_up_key=f0_up_key,
-                    f0_file=None,
-                    f0_method=f0_method,  # or "crepe"
-                    file_index=file_index,
-                    file_index2="",
-                    index_rate=index_rate,
-                    filter_radius=3,
-                    resample_sr=resample_sr,
-                    rms_mix_rate=1,
-                    protect=protect
-                )
+                    # Load the RVC model if needed
+                    if not hasattr(vc, "model") or vc.model_path != rvc_model_path:
+                        vc.get_vc(rvc_model_path)
+                    file_index = rvc_index_path if os.path.isfile(rvc_index_path) else None
+                    # Apply conversion
+                    info, audio_data = vc.vc_single(
+                        sid=0,
+                        input_audio_path=output_path,
+                        f0_up_key=f0_up_key,
+                        f0_file=None,
+                        f0_method=f0_method,  # or "crepe"
+                        file_index=file_index,
+                        file_index2="",
+                        index_rate=index_rate,
+                        filter_radius=3,
+                        resample_sr=resample_sr,
+                        rms_mix_rate=1,
+                        protect=protect
+                    )
 
-                #audio = np.array(audio)
-                if audio_data is None:
-                    print(f"Error in voice conversion: {info}")
-                    return  # or handle error appropriately
-                sr, audio = audio_data
+                    #audio = np.array(audio)
+                    if audio_data is None:
+                        print(f"Error in voice conversion: {info}")
+                        return  # or handle error appropriately
+                    sr, audio = audio_data
 
-                # overwrite output_path with converted audio
-                wavfile.write(output_path, sr, audio)
-                return output_path
+                    # overwrite output_path with converted audio
+                    wavfile.write(output_path, sr, audio)
+                    return output_path
             else:
                 print(f"⚠️ No RVC model found for {voice_name} at {rvc_model_path}")
                 sf.write(output_path, final_audio, 24000),

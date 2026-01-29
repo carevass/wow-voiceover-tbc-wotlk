@@ -80,11 +80,13 @@ VOICE_MODEL_MAP = {
     "dragon_female":"demon_male",
     "dragon_male":"demon_male",
 
+
     # big creature shared model
     "giant_male": "big_creature",
     "vrykul_male": "orc_male",
     "ogre_male": "felorc_male",
 
+    #other
     "giant_female":"forsaken_female",
     "titan_male":"varian",
     "medivh":"khadgar",
@@ -92,7 +94,6 @@ VOICE_MODEL_MAP = {
 
     "earthen":"dwarf_male",
     "naaru":"tauren_female",
-
 
     # defaults map to themselves (if not overridden)
 }
@@ -105,17 +106,21 @@ NPC_EFFECTS = {
     2227:"ghost",
     2278:"ghost",
     4606:"ghost",
+    5397:"giant",
     10684:"ghost",
     1733:"demon",
     18261:"demon",
     14470:"demon",
     14902:"giant",
+    16201: "ghost",
     17712: "ghost",
     17674:"ghost",
     18369:"small",
     18445:"small",
     20812:"small",
     21700:"demon",
+    21797:"demon",
+    21318:"ghost",
     21330:"demon",
     22103:"demon",
     24910:"ghost",
@@ -124,11 +129,17 @@ NPC_EFFECTS = {
     29047:"ghost",
     31135:"ghost",
     19456:"ghost",
+    19644:"ghost",
+    19488:"undead",
+    19489:"undead",
+    20463:"undead",
+    20464:"undead",
+    20482:"comms",
+    20518:"comms",
+    20084:"comms",
     28377:"undead",
     28907:"undead",
     28911:"undead",
     19937:"ghost",
-
-
 
 }

@@ -15,11 +15,11 @@ import pandas as pd
 def init_db():
     ACORE_DB_DUMP_URL = "https://github.com/azerothcore/azerothcore-wotlk/archive/refs/heads/master.zip"
 
-    # ✅ Temporary directories
+    #  Temporary directories
     TEMP_DIR = "temp_wotlk_db"
     EXTRACTED_DIR = os.path.join(TEMP_DIR, "extracted")
 
-    # ✅ MySQL Config (Update if needed)
+    #  MySQL Config (Update if needed)
     MYSQL_CONTAINER = MYSQL_HOST  # MySQL Docker container name
     DB_NAME = MYSQL_DATABASE          # Database name
     DB_USER = MYSQL_USER                  # MySQL user
@@ -64,14 +64,14 @@ def init_db():
 
     if os.path.isdir(ac_path):
         # --- AzerothCore ---
-        print("🧩 Detected AzerothCore structure")
+        print(" Detected AzerothCore structure")
         for root, _, files in os.walk(ac_path):
             for f in sorted(files):
                 if f.endswith(".sql"):
                     sql_files.append(os.path.join(root, f))
     elif os.path.isdir(mangos_path):
         # --- vMaNGOS ---
-        print("🧩 Detected vMaNGOS structure")
+        print(" Detected MaNGOS structure")
         for f in os.listdir(mangos_path):
             if f.lower().endswith(".sql.gz"):
                 sql_files.append(os.path.join(mangos_path, f))

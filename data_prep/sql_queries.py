@@ -24,6 +24,10 @@ creature_quest_relations AS (
     FROM creature_template ct
     JOIN creature_queststarter qr ON qr.id = ct.entry
         UNION ALL
+    SELECT 'accept' as source, qr.quest, ct.entry as creature_id
+    FROM creature_template ct
+    JOIN game_event_creature_quest qr ON qr.id = ct.entry
+        UNION ALL
     SELECT 'complete' as source, qr.quest, ct.entry as creature_id
     FROM creature_template ct
     JOIN creature_questender qr ON qr.id = ct.entry

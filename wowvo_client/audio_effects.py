@@ -25,15 +25,15 @@ def dk_effects(mp3_path):
 
     subprocess.run([
         'sox', working_path, bassed,
-        'bass', '10',
-        'gain', '2'], check=True)
+        'bass', '10'], check=True)
 
     working_path = bassed
 
 
     tremmed = base_path + "_tremolo.wav"
     subprocess.run(['sox', working_path, tremmed,
-                    'tremolo', '200'], check=True)
+                    'tremolo', '200',
+                    'gain', '-n'], check=True)
     working_path = tremmed
 
 
@@ -66,7 +66,7 @@ def robot_effects(mp3_path):
     changed = base_path + "_changed.wav"
     subprocess.run(['sox', working_path, changed,
                     'tremolo', '100000',
-                    'pitch', '-150',
+                    'pitch', '-250',
                     'lowpass', '4000',      # Remove high frequencies
                     'gain', '-n',], check=True)
     working_path = changed
@@ -96,6 +96,7 @@ def ghost_effects(mp3_path):
     subprocess.run([
         'sox', working_path, changed,
         'reverb', '100', '70', '50', '80', '50', '0',
+        'gain','-n',
     ], check=True)
     working_path = changed
 
@@ -150,7 +151,8 @@ def demon_effects(mp3_path):
     subprocess.run([
         'sox', working_path, changed,
         'pitch', '-100',
-        'reverb', '32', '40', '40', '50', '25', '-5'
+        'reverb', '32', '40', '40', '50', '25', '-5',
+        'gain','-n',
     ], check=True)
     working_path = changed
 
@@ -202,11 +204,28 @@ def giant_effects(mp3_path, voice):
     sound.export(working_path, format="wav")
 
     changed = base_path + "_changed.wav"
-    if voice in (["ogrila_ogre",'ogre_male']):
+    if voice in (["ogrila_ogre"]):
         subprocess.run([
             'sox', working_path, changed,
-            'pitch', '-300',
+            'pitch', '-350',
             'tempo', '0.85',
+            'gain','-n',
+        ], check=True)
+    elif voice in (['ogre_male']):
+        subprocess.run([
+            'sox', working_path, changed,
+            'pitch', '-200',
+            'tempo', '0.90',
+            'gain','-n',
+        ], check=True)
+    elif voice in (['ancient']):
+        print("Ancient effects...", flush = True)
+        subprocess.run([
+            'sox', working_path, changed,
+            'pitch', '-250',
+            'reverb', '43', '40', '40', '50', '25', '-5',
+            'gain','-n',
+
         ], check=True)
     else:
         subprocess.run([
@@ -304,6 +323,35 @@ def naaru_effects(mp3_path):
        'tremolo','100',
        'reverb', '60', '50', '60', '100', '50', '-5',
        'gain', '-n',
+
+    ], check=True)
+    working_path = changed
+
+    # Final: overwrite original .mp3 with processed audio
+    final = AudioSegment.from_file(working_path)
+    final.export(mp3_path, format="mp3", bitrate = "64k")
+
+    # Clean up temp wavs
+    for f in os.listdir(os.path.dirname(mp3_path)):
+        if f.startswith(os.path.basename(base_path)) and f.endswith(".wav"):
+            os.remove(os.path.join(os.path.dirname(mp3_path), f))
+
+def comms_effects(mp3_path):
+    # Load the mp3
+    sound = AudioSegment.from_file(mp3_path)
+
+    # Work in-place using temporary intermediate files with .wav extension
+
+    base_path = os.path.join(mp3_path[:-4])  # strip .mp3
+    print(base_path)
+    working_path = base_path + "_proc.wav"
+    sound.export(working_path, format="wav")
+
+    changed = base_path + "_changed.wav"
+    subprocess.run([
+       'sox', working_path, changed,
+       'highpass', '300',
+       'lowpass','3400',
 
     ], check=True)
     working_path = changed
