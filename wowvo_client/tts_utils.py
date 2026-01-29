@@ -18,8 +18,8 @@ import subprocess
 DATAMODULE_TABLE_GUARD_CLAUSE = 'if not VoiceOver or not VoiceOver.DataModules then return end'
 REPLACE_DICT = {'$b': '\n', '$B': '\n', '$n': 'adventurer', '$N': 'Adventurer',
                 '$C': 'Adventurer', '$c': 'adventurer', '$R': 'Traveler', '$r': 'traveler', '$t citizen : citizen': 'citizen',
+                '$T Civvy : Civvy;': '',
                  '—':',', '--':',', " - ":", ",
-                 "Death. To. All.":"Death to all.", #weird lines in quest 12657
                  # Factions / Regions
                  "Draenei": "Dray-nai",
                 "Lordaeron": "Lord-air-on",
@@ -28,17 +28,16 @@ REPLACE_DICT = {'$b': '\n', '$B': '\n', '$n': 'adventurer', '$N': 'Adventurer',
                 "Naxxramas": "Nax-ramas",
                 "Scholomance": "Skolo-mance",
                 "Stratholme": "Strath-holm",
-                #"Acherus": "Acker-uhs", couldn't get this one to sound nice, or it makes generation stutter
+
                 "Naaru":"Naroo",
                 "Dragonflight": "Dragon-flight",
-                #"Mag'har":"Maggar",
+
 
 
                 # Bosses / NPCs
                 "Malygos": "Mal-ee-goss",
                 "Kel'Thuzad": "Kel-thu-zahd",
                 "Anub'arak": "Anub-araak",
-                #"Illidan": "Ill-ih-dan",
                 "Kael'thas": "Kale-thoss",
                 "Mok'Nathal":"Mockna-tholl",
                 "orcish":"orkish",
@@ -69,7 +68,7 @@ REPLACE_DICT = {'$b': '\n', '$B': '\n', '$n': 'adventurer', '$N': 'Adventurer',
                 "Mathystra": "Math-is-trah",
                 "Ulduar": "Ool-dwar",
                 "Utgarde": "Oot-guard",
-                "Zul'Aman": "Zool-ah-man",
+                "Zul'Aman": "Zool-ahmaan",
                 "Zul'Drak": "Zool-drak",
                 "Ahn'kahet": "On-ka-het",
                 "Gundrak": "Gun-drak",
@@ -89,12 +88,11 @@ REPLACE_DICT = {'$b': '\n', '$B': '\n', '$n': 'adventurer', '$N': 'Adventurer',
 
                 # Misc
                 "Felwood": "Fell-wood",
-                #"Netherstorm": "Neth-er-storm",
                 "Ashenvale": "Ash-en-vale",
                 "Grizzly Hills": "Grizz-lee Hills",
                 "Stranglekelp":"Strangle-kelp",
                 "Sha'naar":"Shanar",
-                "Sin'dorei":"Sindo-rye",
+                "Sin'dorei":"Sindoh-rye",
                 "Gorefiend":"Gorfeend",
 
 
@@ -299,7 +297,7 @@ class TTSProcessor(TTSEngine):
         elif voice_key in ("demon_male", "keeper"):
             print(f"Demon post-processing for {outpath}")
             demon_effects(outpath)
-        elif voice_key in ("giant_male", "ogre_male", "ogrila_ogre"):
+        elif voice_key in ("giant_male", "ogre_male", "ogrila_ogre","ancient"):
             print(f"Giant post-processing for {outpath}")
             giant_effects(outpath, voice_key)
         elif voice_key in ("wolvar_male", "gorloc_male"):
@@ -311,7 +309,9 @@ class TTSProcessor(TTSEngine):
         elif voice_key in ("naaru"):
             print(f"Naaru creature post-processing for {outpath}")
             naaru_effects(outpath)
-
+        elif voice_key in ("ethereal_male"):
+            print(f"Ethereal creature post-processing for {outpath}")
+            ethereal_effects(outpath)
         # Apply questgiver-specific effects that don't conform to race_gender categories
         if questgiver_id and questgiver_id in NPC_EFFECTS:
             effect_type = NPC_EFFECTS[questgiver_id]
@@ -323,13 +323,16 @@ class TTSProcessor(TTSEngine):
                 demon_effects(outpath)
             elif effect_type == "giant":
                 print("Doing giant effects", flush = True)
-                giant_effects(outpath)
+                giant_effects(outpath, voice_key)
             elif effect_type == "undead":
                 print("Doing undead effects", flush = True)
                 undead_effects(outpath)
             elif effect_type == "small":
                 print(f"Small creature effects", flush = True)
                 small_effects(outpath)
+            elif effect_type == "comms":
+                print(f"Telephone effects ...", flush = True)
+                comms_effects(outpath)
         print(f"Audio saved and processed: {outpath}")
 
 
@@ -402,6 +405,10 @@ class TTSProcessor(TTSEngine):
             .str.replace(r"\s+", " ", regex=True)  # collapse leftover spaces
             .str.strip()
         )
+
+        #Remove binary characters (for the punchographs in Gnomeregan)
+        df["cleanedText"] = df["cleanedText"].str.replace(r'(?:\b[01]{8}\b\s*)+', '', regex = True)
+
         df['player_gender'] = None
         rows = []
         for _, row in df.iterrows():
@@ -625,6 +632,8 @@ class TTSProcessor(TTSEngine):
               index_rate = 0.70, filter_radius = 3, resample_sr = 0, rms_mix_rate = 1,
               protect = 0.25):
        #Add specific codes for quests that need to be in the module search table so the audio for certain quests with the same name is found properly.
+        exp_for_audio = expansions
+
         if 0 in expansions:
             expansions.append(-77)
         if 1 in expansions:
@@ -632,7 +641,7 @@ class TTSProcessor(TTSEngine):
         if 2 in expansions:
             expansions.append(-99)
 
-        df = df[df['expansion'].isin(expansions)]
+        df = df[df['expansion'].isin(exp_for_audio)]
         df.sort_values("voice_name")
 
         if module_name:
