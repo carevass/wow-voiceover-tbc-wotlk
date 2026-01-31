@@ -28,7 +28,7 @@ REPLACE_DICT = {'$b': '\n', '$B': '\n', '$n': 'adventurer', '$N': 'Adventurer',
                 "Naxxramas": "Nax-ramas",
                 "Scholomance": "Skolo-mance",
                 "Stratholme": "Strath-holm",
-
+                "Atal'ai":"Ata-lai",
                 "Naaru":"Naroo",
                 "Dragonflight": "Dragon-flight",
 
