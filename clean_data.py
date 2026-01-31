@@ -52,7 +52,10 @@ def clean_quest_data(tts_processor):
 
     # Assign result back to the original DataFrame
     df.loc[mask, 'expansion'] = new_expansion_values
-    
+
+    # recategorize expansion from corrections file before filtering, this will eliminate some vanilla npcs that are being
+    # wrongly categorized as tbc in the logic above
+
     #filter out vanilla observations to avoid overlap with original VO
     #we know that original VO only missed custom models and item/gameobject quests
     #filtering the rest out should do the trick
@@ -60,7 +63,8 @@ def clean_quest_data(tts_processor):
     df = df[
         (df['expansion'] != 0) |
         (df['type'].isin(['item','gameobject'])) |
-        (df['DisplayRaceID'] == -77)
+        (df['DisplayRaceID'] == -77) |
+        ((df['DisplayRaceID'] == 8) & (df['DisplaySexID'] == 0)) # specifically keeping troll males from vanilla to add that in
     ]
     #add missing quest entries from excel; note all columns must be filled out
 
@@ -68,18 +72,13 @@ def clean_quest_data(tts_processor):
     print("Applying new entries ...", flush = True)
 
 
-    #add the new columns and so on
+    #add the new columns
     df = tts_processor.preprocess_dataframe(df)
-        ## add pitch variation variable for later
-
 
 
     #do corrections
     df = apply_corrections(df, "corrections/corrections.xlsx")
     print("Applying corrections ...", flush = True)
-
-
-
 
 
     # Define the mapping of old values to new values
