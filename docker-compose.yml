@@ -21,10 +21,7 @@ services:
 
     shm_size: "8g"
     volumes:
-      - ../wow_vo_deps/fine_tuned:/app/fine_tuned
-      - ../wow_vo_deps/voices:/app/voices
-      - ../wow_vo_deps/corrections.xlsx:/app/corrections/corrections.xlsx
-      - ../wow_vo_deps/new_entries.xlsx:/app/corrections/new_entries.xlsx
+
       - ../WoTLK335a_HDMods/Interface/AddOns/AI_VoiceOverData_TBC:/app/AI_VoiceOverData_TBC
       - ../WoTLK335a_HDMods/Interface/AddOns/AI_VoiceOverData_WoTLK:/app/AI_VoiceOverData_WoTLK
       - ../WoTLK335a_HDMods/Interface/AddOns/AI_VoiceOverData_VanillaExtra:/app/AI_VoiceOverData_VanillaExtra
