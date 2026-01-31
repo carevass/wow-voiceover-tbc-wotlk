@@ -21,7 +21,7 @@ services:
 
     shm_size: "8g"
     volumes:
-
+      -
       - ../WoTLK335a_HDMods/Interface/AddOns/AI_VoiceOverData_TBC:/app/AI_VoiceOverData_TBC
       - ../WoTLK335a_HDMods/Interface/AddOns/AI_VoiceOverData_WoTLK:/app/AI_VoiceOverData_WoTLK
       - ../WoTLK335a_HDMods/Interface/AddOns/AI_VoiceOverData_VanillaExtra:/app/AI_VoiceOverData_VanillaExtra
