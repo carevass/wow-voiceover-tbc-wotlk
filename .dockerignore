@@ -1,5 +1,4 @@
-fine_tuned/*
-voices/*
+inputs/*
 corrections/corrections.xlsx
 corrections/new_entries.xlsx
 AI_VoiceOver

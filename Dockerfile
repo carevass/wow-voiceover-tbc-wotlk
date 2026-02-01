@@ -63,5 +63,5 @@ ENV COQUI_TOS_AGREED=1
 ENV weight_root=/app
 ENV index_root=/app/fine_tuned/_rvc/indices
 
-CMD ["python3", "infer-web.py", "--port", "7280"]
 
+CMD ["python3", "infer-web.py", "--port", "7280"]

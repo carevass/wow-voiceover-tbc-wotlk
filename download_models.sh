@@ -4,7 +4,8 @@
 # Create folder structure
 mkdir -p ./inputs/fine_tuned/base
 mkdir -p ./inputs/fine_tuned/_rvc/indices
-mkdir -p ./inputs/fine_tuned/_rvc/models/ckpt
+mkdir -p ./inputs/fine_tuned/_rvc/models/ckpt/rmvpe
+mkdir -p ./inputs/fine_tuned/_rvc/models/ckpt/hubert
 mkdir -p ./inputs/fine_tuned/_rvc/weights
 mkdir -p ./inputs/voices
 
@@ -19,12 +20,12 @@ if [ ! -f "./inputs/fine_tuned/base/model.pth" ]; then
 fi
 
 # Download RVC components
-if [ ! -f "./inputs/fine_tuned/_rvc/models/ckpt/rmvpe.pt" ]; then
+if [ ! -f "./inputs/fine_tuned/_rvc/models/ckpt/rmvpe/rmvpe.pt" ]; then
     echo "Downloading RMVPE..."
-    wget -O ./inputs/fine_tuned/_rvc/models/ckpt/rmvpe.pt https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/rmvpe.pt
+    wget -O ./inputs/fine_tuned/_rvc/models/ckpt/rmvpe/rmvpe.pt https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/rmvpe.pt
 fi
 
-if [ ! -f "./inputs/fine_tuned/_rvc/models/ckpt/hubert_base.pt" ]; then
+if [ ! -f "./inputs/fine_tuned/_rvc/models/ckpt/hubert/hubert_base.pt" ]; then
   echo "Downloading Hubert..."
-  wget -O ./inputs/fine_tuned/_rvc/models/ckpt/hubert_base.pt https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/hubert_base.pt
+  wget -O ./inputs/fine_tuned/_rvc/models/ckpt/hubert/hubert_base.pt https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/hubert_base.pt
 fi

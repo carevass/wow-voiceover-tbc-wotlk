@@ -21,13 +21,18 @@ services:
 
     shm_size: "8g"
     volumes:
-      -
+      - ./inputs:/app/inputs
+      - ./inputs/fine_tuned:/app/fine_tuned/
+      - ./inputs/fine_tuned/_rvc/models/ckpt/:/app/rvc/assets/
+      - ./inputs/voices:/app/voices
+      - ./inputs/corrections.xlsx:/app/corrections/corrections.xlsx
+      - ./inputs/new_entries.xlsx:/app/corrections/new_entries.xlsx
       - ../WoTLK335a_HDMods/Interface/AddOns/AI_VoiceOverData_TBC:/app/AI_VoiceOverData_TBC
       - ../WoTLK335a_HDMods/Interface/AddOns/AI_VoiceOverData_WoTLK:/app/AI_VoiceOverData_WoTLK
       - ../WoTLK335a_HDMods/Interface/AddOns/AI_VoiceOverData_VanillaExtra:/app/AI_VoiceOverData_VanillaExtra
 
 
-    command: ["python3", "wow_vo.py", "--port", "7280"]
+    command: ["bash", "-c", "./download_models.sh && python3 wow_vo.py --port 7280"]
     labels:
       - "traefik.enable=false"
       - "com.docker.compose.port=7280"
