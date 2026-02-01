@@ -1,7 +1,7 @@
+inputs/*
 fine_tuned/*
 voices/*
-rvc/assets/hubert/hubert_base.pt
-rvc/assets/rmvpe/rmvpe.pt
+rvc/assets/*
 tts_gossip_custom.py
 tts_dataframe.py
 tts_quest.py
