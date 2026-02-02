@@ -14,9 +14,9 @@ This repo currently has the code used to generate the VO files. for the actual A
 
 1. Clone the repo
 2. Change the `docker-compose.yml` mounts for `AI_VoiceOverData_TBC`,`AI_VoiceOverData_WoTLK`, `AI_VoiceOverData_VanillaExtra` (lines 30-32) to wherever you want the audios to come out. Otherwise docker will make these folders next to your project folder. If you don't mind having the final audios stay in the container and then manually downloading them, you can delete these lines.
-3. Start the docker container; `docker compose up -d`
+3. Start the docker container: `docker compose up -d`
 
-This project uses XTTS and RVC to generate the quest an gossip audio. Starting up the container will trigger `download_models.sh`. This will create a folder structure called inputs inside the project directory and download the weights needed to get the Gradio WebUI up and running.
+This project uses XTTS and RVC to generate the quest and gossip audio. Starting up the container will trigger `download_models.sh`. This will create a folder structure called inputs inside the project directory and download the weights needed to get the Gradio WebUI up and running.
 
 At this point, you can use the WebUI to initialize the database and prepare the data frame with the quest and gossip data. To start generating audio you need to provide some inputs:
 

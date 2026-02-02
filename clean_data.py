@@ -2,7 +2,7 @@ from wowvo_client.consts import race_gender_tuple_to_strings
 from wowvo_client import utils
 import numpy as np
 import pandas as pd
-from corrections.corrections import apply_corrections, add_new_entries
+from corrections.corrections import recode_expansions, apply_corrections, add_new_entries
 from data_prep.sql_queries import query_dataframe_for_all_quests_and_gossip
 
 
@@ -55,16 +55,23 @@ def clean_quest_data(tts_processor):
 
     # recategorize expansion from corrections file before filtering, this will eliminate some vanilla npcs that are being
     # wrongly categorized as tbc in the logic above
+    #do corrections
+    df = recode_expansions(df, "corrections/corrections.xlsx")
+    print("recoding expansions for NPCs and quests ...", flush = True)
 
-    #filter out vanilla observations to avoid overlap with original VO
-    #we know that original VO only missed custom models and item/gameobject quests
-    #filtering the rest out should do the trick
+    '''
+        filter out vanilla observations to avoid overlap with original VO
+        we know that original VO only missed custom models and item/gameobject quests
+        filtering the rest out should do the trick
+        We are specifically keeping troll males from vanilla to add that in since they
+        weren't voiced in the original VO
+    '''
 
     df = df[
         (df['expansion'] != 0) |
         (df['type'].isin(['item','gameobject'])) |
         (df['DisplayRaceID'] == -77) |
-        ((df['DisplayRaceID'] == 8) & (df['DisplaySexID'] == 0)) # specifically keeping troll males from vanilla to add that in
+        ((df['DisplayRaceID'] == 8) & (df['DisplaySexID'] == 0))
     ]
     #add missing quest entries from excel; note all columns must be filled out
 
@@ -161,5 +168,6 @@ def clean_quest_data(tts_processor):
 
 
     del df_subset
+    msg = "Quest and gossip data cleaning complete. Number of rows: " + str('{:,}'.format(df.shape[0]))
 
-    return "Quest and gossip data cleaning complete.", df
+    return msg, df
