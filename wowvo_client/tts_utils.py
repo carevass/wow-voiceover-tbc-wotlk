@@ -294,7 +294,7 @@ class TTSProcessor(TTSEngine):
         elif voice_key in ("mechanical", "titan_male"):
             print(f"Robot post-processing for {outpath}")
             robot_effects(outpath)
-        elif voice_key in ("demon_male", "keeper"):
+        elif voice_key in ("demon_male", "keeper", "dragon_male", "dragon_female"):
             print(f"Demon post-processing for {outpath}")
             demon_effects(outpath)
         elif voice_key in ("giant_male", "ogre_male", "ogrila_ogre","ancient"):
