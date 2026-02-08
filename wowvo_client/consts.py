@@ -111,6 +111,8 @@ NPC_EFFECTS = {
     10684:"ghost",
     1733:"demon",
     18261:"demon",
+    12238:"ghost",
+    13716:"ghost",
     14470:"demon",
     14902:"giant",
     16201: "ghost",
