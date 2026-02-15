@@ -57,7 +57,8 @@ REPLACE_DICT = {'$b': '\n', '$B': '\n', '$n': 'adventurer', '$N': 'Adventurer',
                 "Dar'Khan":"DarKahn",
                 "Stormrage": "Storm-rayge",
                 "Gul'dan":"Gool dan",
-
+                "undead":"on-dedd",
+                "undeath":"on-deth",
 
                 # Places
                 #"Azeroth":"Ah-ze-roth",
@@ -206,7 +207,7 @@ class TTSProcessor(TTSEngine):
         output_subdir = os.path.join(self.sound_output_folder, subdir)
         os.makedirs(output_subdir, exist_ok=True)
 
-    def tts(self, text, voice_name, output_name, output_subfolder, forceGen=True, questgiver_id=None,
+    def tts(self, text, voice_name, output_name, output_subfolder, forceGen=False, questgiver_id=None,
                           temperature = 0.75, length_penalty = 1.0, repetition_penalty = 10.0,
                           top_k = 1, top_p = 1.0, speed = 1.05, f0_up_key = 0, f0_method = "rmvpe",
                           index_rate = 0.70, filter_radius = 3, resample_sr = 0, rms_mix_rate = 1,
@@ -214,7 +215,7 @@ class TTSProcessor(TTSEngine):
                           ):
 
         SOUND_OUTPUT_FOLDER = os.path.join(self.sound_output_folder, output_subfolder)
-        VOICE_SAMPLE_FOLDER = "voices"
+
 
         outpath = os.path.join(SOUND_OUTPUT_FOLDER, output_name)
         # Keep original voice_name for effects further below
@@ -227,13 +228,17 @@ class TTSProcessor(TTSEngine):
 
         mapped_voice = VOICE_MODEL_MAP.get(voice_name, voice_name)
 
+        VOICE_SAMPLE_FOLDER = os.path.join("voices", mapped_voice)
+        voice_files = os.listdir(VOICE_SAMPLE_FOLDER)
+
         if os.path.isfile(outpath) and not forceGen:
             print("duplicate generation, skipping")
             return
 
-        voice_path = os.path.join(VOICE_SAMPLE_FOLDER, f"{voice_name}.wav")
-        if not os.path.isfile(voice_path):
-            print(f"Voice sample not found: {voice_path}")
+        voice_path = [os.path.join(VOICE_SAMPLE_FOLDER, file) for file in voice_files]
+        
+        if not len(voice_path)>=1:
+            print(f"Voice sample not found: {mapped_voice}")
             return
         # Set model_dir based on mapped voice, or voice_name
         model_dir = f"fine_tuned/{mapped_voice}"

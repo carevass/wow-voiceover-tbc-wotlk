@@ -117,7 +117,7 @@ class TTSEngine:
     def synthesize(
         self,
         text: str = None,
-        speaker_wav: str = None,
+        speaker_wav: list = None,
         language: str = "en",
         model_dir: str = None,
         speaker_id: str = None,
@@ -146,6 +146,7 @@ class TTSEngine:
             global loaded_models, default_model
             # Save speaker reference audio
             ref_path = os.path.join(f"{speaker_wav}")
+            print(ref_path)
             audio = load_audio(ref_path, 22050)
 
             # Choose model
