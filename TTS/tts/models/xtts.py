@@ -371,7 +371,7 @@ class Xtts(BaseTTS):
             speaker_embeddings.append(speaker_embedding)
 
             audios.append(audio)
-
+        print("total reference audios: ", len(audios))    
         # merge all the audios and compute the latents for the gpt
         full_audio = torch.cat(audios, dim=-1)
         gpt_cond_latents = self.get_gpt_cond_latents(

@@ -146,8 +146,7 @@ class TTSEngine:
             global loaded_models, default_model
             # Save speaker reference audio
             ref_path = os.path.join(f"{speaker_wav}")
-            print(ref_path)
-            audio = load_audio(ref_path, 22050)
+            #audio = load_audio(ref_path, 22050)
 
             # Choose model
             if model_dir:
@@ -214,11 +213,11 @@ class TTSEngine:
 
             if speaker_id and speaker_id in tts.speaker_manager.speakers:
                 # Inbuild / fine-tuned speaker from speakers_xtts.pth
-                speaker_id = ref_path
+                speaker_id = speaker_wav
                 gpt_cond_latent, speaker_embedding = tts.speaker_manager.speakers[speaker_id].values()
             else:
                 # On-the-fly from reference wav, cached
-                gpt_cond_latent, speaker_embedding = get_or_create_latents(tts, ref_path, ref_path)
+                gpt_cond_latent, speaker_embedding = get_or_create_latents(tts, ref_path, speaker_wav)
 
             chunks = split_into_sentences(text)
             chunks = merge_short_fragments(chunks)
@@ -273,7 +272,7 @@ class TTSEngine:
                         input_audio_path=output_path,
                         f0_up_key=f0_up_key,
                         f0_file=None,
-                        f0_method=f0_method,  # or "crepe"
+                        f0_method=f0_method,
                         file_index=file_index,
                         file_index2="",
                         index_rate=index_rate,

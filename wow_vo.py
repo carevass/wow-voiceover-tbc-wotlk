@@ -109,7 +109,7 @@ with gr.Blocks(title="WoW Voiceover WebUI", theme = gr.themes.Ocean()) as app:
                             minimum=0.01,
                             maximum=2,
                             label="Speed",
-                            value=1.05,
+                            value=1.00,
                             interactive=True,
                         )
                     with gr.Column():
@@ -283,7 +283,7 @@ with gr.Blocks(title="WoW Voiceover WebUI", theme = gr.themes.Ocean()) as app:
                             minimum=0.01,
                             maximum=2,
                             label="Speed",
-                            value=1.05,
+                            value=1.00,
                             interactive=True,
                         )
                     with gr.Column():
@@ -461,7 +461,7 @@ with gr.Blocks(title="WoW Voiceover WebUI", theme = gr.themes.Ocean()) as app:
                             minimum=0.01,
                             maximum=2,
                             label="Speed",
-                            value=1.05,
+                            value=1.00,
                             interactive=True,
                         )
                     with gr.Column():

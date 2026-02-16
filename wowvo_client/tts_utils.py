@@ -89,9 +89,8 @@ REPLACE_DICT = {'$b': '\n', '$B': '\n', '$n': 'adventurer', '$N': 'Adventurer',
 
                 # Misc
                 "Felwood": "Fell-wood",
-                "Ashenvale": "Ash-en-vale",
-                "Grizzly Hills": "Grizz-lee Hills",
-                "Stranglekelp":"Strangle-kelp",
+                "Ashenvale": "Ashen-veil",
+                #"Grizzly Hills": "Grizz-lee Hills",
                 "Sha'naar":"Shanar",
                 "Sin'dorei":"Sindoh-rye",
                 "Gorefiend":"Gorfeend",
@@ -207,7 +206,7 @@ class TTSProcessor(TTSEngine):
         output_subdir = os.path.join(self.sound_output_folder, subdir)
         os.makedirs(output_subdir, exist_ok=True)
 
-    def tts(self, text, voice_name, output_name, output_subfolder, forceGen=False, questgiver_id=None,
+    def tts(self, text, voice_name, output_name, output_subfolder, forceGen=True, questgiver_id=None,
                           temperature = 0.75, length_penalty = 1.0, repetition_penalty = 10.0,
                           top_k = 1, top_p = 1.0, speed = 1.05, f0_up_key = 0, f0_method = "rmvpe",
                           index_rate = 0.70, filter_radius = 3, resample_sr = 0, rms_mix_rate = 1,
@@ -236,7 +235,7 @@ class TTSProcessor(TTSEngine):
             return
 
         voice_path = [os.path.join(VOICE_SAMPLE_FOLDER, file) for file in voice_files]
-        
+
         if not len(voice_path)>=1:
             print(f"Voice sample not found: {mapped_voice}")
             return
@@ -385,6 +384,7 @@ class TTSProcessor(TTSEngine):
             regex=True
         )
         #no commas for short sentences
+        #lambda x defines in situ a function that takes argument x and does the comma replacement logic
         df['cleanedText'] = df['cleanedText'].apply(lambda x: x.replace(",", "") if len(x) <= 50 else x)
 
         #deal with ellipses
