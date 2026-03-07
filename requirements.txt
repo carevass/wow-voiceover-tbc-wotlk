@@ -25,7 +25,7 @@ uvicorn[standard]
 pydantic
 sentencepiece
 python-multipart
-gradio==5.49.1
+gradio==6.5.1
 
 # --- Examples ---
 flask>=2.0.1
