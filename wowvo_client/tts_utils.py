@@ -22,7 +22,7 @@ REPLACE_DICT = {'$b': '\n', '$B': '\n', '$n': 'adventurer', '$N': 'Adventurer',
                  '—':',', '--':',', " - ":", ",
                  # Factions / Regions
                  "Draenei": "Dray-nai",
-                "Lordaeron": "Lord-air-on",
+                "Lordaeron": "Lor-deron",
                 "Quel'Thalas": "Kwel-tha-las",
                 "Dalaran": "Dal-ah-ran",
                 "Naxxramas": "Nax-ramas",
@@ -41,8 +41,8 @@ REPLACE_DICT = {'$b': '\n', '$B': '\n', '$n': 'adventurer', '$N': 'Adventurer',
                 "Kael'thas": "Kale-thoss",
                 "Mok'Nathal":"Mockna-tholl",
                 "orcish":"orkish",
-                "Kil'jaeden": "Kil-jay-den",
-                "Archimonde": "Ark-i-mond",
+                "Kil'jaeden": "Kil-jayden",
+                "Archimonde": "Arki-mond",
                 "C'Thun": "Kuh-thoon",
                 "Yogg-Saron": "Yog-suh-ron",
                 "Gjalerbron": "Yal-er-bron",
@@ -57,7 +57,7 @@ REPLACE_DICT = {'$b': '\n', '$B': '\n', '$n': 'adventurer', '$N': 'Adventurer',
                 "Dar'Khan":"DarKahn",
                 "Stormrage": "Storm-rayge",
                 "Gul'dan":"Gool dan",
-                "undead":"on-dedd",
+                "undead":"on-ded",
                 "undeath":"on-deth",
 
                 # Places
@@ -77,6 +77,8 @@ REPLACE_DICT = {'$b': '\n', '$B': '\n', '$n': 'adventurer', '$N': 'Adventurer',
                 "Ahn'Qiraj":"On-kee-rahj",
                 "Elwynn":"Elwin",
                 "Arcatraz":"Arc-a-traz",
+                "Stonetalon":"stone-talon",
+                "Kalimdor":"Kalim-dor",
 
                 # Titans / Lore
                 "Tyr": "Teer",
@@ -195,6 +197,8 @@ def clean_brackets(s):
     # Otherwise remove <...> completely
     return re.sub(r'<.*?>', '', s)
 
+
+
 class TTSProcessor(TTSEngine):
     def __init__(self, module_name='AI_VoiceOverData_TBC'):
         self.module_name = module_name
@@ -206,11 +210,26 @@ class TTSProcessor(TTSEngine):
         output_subdir = os.path.join(self.sound_output_folder, subdir)
         os.makedirs(output_subdir, exist_ok=True)
 
-    def tts(self, text, voice_name, output_name, output_subfolder, forceGen=True, questgiver_id=None,
+    def make_audio_path(self, mapped_voice, emotion=None):
+        if emotion:
+            VOICE_SAMPLE_FOLDER = os.path.join("voices", mapped_voice, emotion)
+        else:
+            VOICE_SAMPLE_FOLDER = os.path.join("voices", mapped_voice)
+
+        print("using files in: ", VOICE_SAMPLE_FOLDER, flush= True)
+        #find all audio files in the corresponding folder make into a list
+        voice_files = [f for f in os.listdir(VOICE_SAMPLE_FOLDER) if os.path.isfile(os.path.join(VOICE_SAMPLE_FOLDER, f))]
+
+        #append the relative path to the voice/voice_name folder to each entry in the list
+        voice_path = [os.path.join(VOICE_SAMPLE_FOLDER, file) for file in voice_files]
+
+        return voice_path
+
+    def tts(self, text, voice_name, output_name, output_subfolder, forceGen=False, questgiver_id=None,
                           temperature = 0.75, length_penalty = 1.0, repetition_penalty = 10.0,
                           top_k = 1, top_p = 1.0, speed = 1.05, f0_up_key = 0, f0_method = "rmvpe",
                           index_rate = 0.70, filter_radius = 3, resample_sr = 0, rms_mix_rate = 1,
-                          protect = 0.25
+                          protect = 0.25, emotion = None
                           ):
 
         SOUND_OUTPUT_FOLDER = os.path.join(self.sound_output_folder, output_subfolder)
@@ -227,14 +246,14 @@ class TTSProcessor(TTSEngine):
 
         mapped_voice = VOICE_MODEL_MAP.get(voice_name, voice_name)
 
-        VOICE_SAMPLE_FOLDER = os.path.join("voices", mapped_voice)
-        voice_files = os.listdir(VOICE_SAMPLE_FOLDER)
-
         if os.path.isfile(outpath) and not forceGen:
             print("duplicate generation, skipping")
             return
+        #replace default emotion to count as None for the audio path logic to work
+        if emotion == "default":
+            emotion = None
 
-        voice_path = [os.path.join(VOICE_SAMPLE_FOLDER, file) for file in voice_files]
+        voice_path = self.make_audio_path(mapped_voice, emotion)
 
         if not len(voice_path)>=1:
             print(f"Voice sample not found: {mapped_voice}")
@@ -244,7 +263,7 @@ class TTSProcessor(TTSEngine):
 
 
         if not os.path.isdir(model_dir):
-            model_dir = None  # fallback in FastAPI will handle this
+            model_dir = None
 
         files = {
             "speaker_wav": voice_path
@@ -705,7 +724,7 @@ class TTSProcessor(TTSEngine):
               temperature = 0.75, length_penalty = 1.0, repetition_penalty = 10.0,
               top_k = 1, top_p = 1.0, speed = 1.05, f0_up_key = 0, f0_method = "rmvpe",
               index_rate = 0.70, filter_radius = 3, resample_sr = 0, rms_mix_rate = 1,
-              protect = 0.25):
+              protect = 0.25, emotion = None):
 
         quest_id = str(quest_id)
 
@@ -754,7 +773,7 @@ class TTSProcessor(TTSEngine):
                      questgiver_id=questgiver_id, temperature = temperature, length_penalty = length_penalty,
                      repetition_penalty = repetition_penalty, top_k = top_k, top_p = top_p, speed = speed,
                      f0_up_key = f0_up_key, f0_method = f0_method, index_rate = index_rate, filter_radius = filter_radius,
-                     resample_sr = resample_sr, rms_mix_rate = rms_mix_rate, protect = protect)
+                     resample_sr = resample_sr, rms_mix_rate = rms_mix_rate, protect = protect, emotion = emotion)
         audio = self.output_path
         return "Generation complete.", expansions, audio  # Return both info message and expansions
 
@@ -762,7 +781,7 @@ class TTSProcessor(TTSEngine):
               temperature = 0.75, length_penalty = 1.0, repetition_penalty = 10.0,
               top_k = 1, top_p = 1.0, speed = 1.05, f0_up_key = 0, f0_method = "rmvpe",
               index_rate = 0.70, filter_radius = 3, resample_sr = 0, rms_mix_rate = 1,
-              protect = 0.25):
+              protect = 0.25, emotion = None):
 
         """
         Regenerate audio for a specific gossip, either specific npc or race_gender (overwrites existing audio).
@@ -810,6 +829,6 @@ class TTSProcessor(TTSEngine):
                      questgiver_id=questgiver_id, temperature = temperature, length_penalty = length_penalty,
                      repetition_penalty = repetition_penalty, top_k = top_k, top_p = top_p, speed = speed,
                      f0_up_key = f0_up_key, f0_method = f0_method, index_rate = index_rate, filter_radius = filter_radius,
-                     resample_sr = resample_sr, rms_mix_rate = rms_mix_rate, protect = protect)
+                     resample_sr = resample_sr, rms_mix_rate = rms_mix_rate, protect = protect, emotion = emotion)
         audio = self.output_path
         return "Generation complete.", expansions, audio  # Return both info message and expansions

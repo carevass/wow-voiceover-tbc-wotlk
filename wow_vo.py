@@ -22,7 +22,7 @@ def load_voices(df):
 def select_columns(df):
     return df[['source', 'quest', 'quest_title', 'name','id','voice_name','DisplayRaceID', 'DisplaySexID','cleanedText', 'expansion']]
 
-with gr.Blocks(title="WoW Voiceover WebUI", theme = gr.themes.Ocean()) as app:
+with gr.Blocks(title="WoW Voiceover WebUI") as app:
     df_state = gr.State(value=None)
     gr.Markdown("## WoW Voiceover WebUI")
     gr.Markdown(
@@ -109,7 +109,7 @@ with gr.Blocks(title="WoW Voiceover WebUI", theme = gr.themes.Ocean()) as app:
                             minimum=0.01,
                             maximum=2,
                             label="Speed",
-                            value=1.00,
+                            value=1.05,
                             interactive=True,
                         )
                     with gr.Column():
@@ -166,21 +166,36 @@ with gr.Blocks(title="WoW Voiceover WebUI", theme = gr.themes.Ocean()) as app:
                         )
             with gr.Group():
                 with gr.Row():
+                    # Create the reset button
+                    reset_btn = gr.Button("↺", size="sm", variant="secondary")
+                    emotion_single = gr.Dropdown(
+                        label="Emotion (if any) must match a folder name where audios are kept or be left in default",
+                        choices=(
+                            ['angry','sad', "default"]
+                        ),
+                        value = "default",
+                        multiselect = False,
+                        interactive = True,
+                        allow_custom_value = True,
+                        buttons = [reset_btn]
+                        )
+                    # Attach the reset functionality
+                    reset_btn.click(
+                        lambda: "default",
+                        outputs=emotion_single
+                    )
                     with gr.Column():
-                        expansion_label = gr.Markdown("Choose whether you are generating the accept, complete or both parts of the quest audio")
-                        spec_single = gr.Dropdown(
-                            label="",
+                        spec_single = gr.CheckboxGroup(
+                            label="Choose whether you are generating the accept, complete, progress, or all parts of the quest audio",
                             choices=(
-                                ['accept','complete']
+                                ['accept','complete','progress']
                             ),
                             value = ['accept','complete'],
-                            multiselect = True,
-                            interactive = True
+                            interactive = True,
                             )
                     with gr.Column():
-                        module_label = gr.Markdown("Module to export audio to")
                         module_name_single = gr.Dropdown(
-                            label="",
+                            label="Module to export audio to",
                             choices=(
                                 ['AI_VoiceOverData_VanillaExtra', 'AI_VoiceOverData_TBC', 'AI_VoiceOverData_WoTLK','Testing']
                             ),
@@ -189,8 +204,8 @@ with gr.Blocks(title="WoW Voiceover WebUI", theme = gr.themes.Ocean()) as app:
                             interactive = True
                             )
                     with gr.Column():
-                        questid_label = gr.Markdown("Write the quest ID of the quest you will be regenerating")
                         quest_id = gr.Textbox(
+                            label = "Write the quest ID of the quest you will be regenerating",
                             interactive = True
                             )
             with gr.Group():
@@ -219,7 +234,8 @@ with gr.Blocks(title="WoW Voiceover WebUI", theme = gr.themes.Ocean()) as app:
                             filter_radius_single,
                             resample_sr_single,
                             rms_mix_rate_single,
-                            protect_single
+                            protect_single,
+                            emotion_single
 
                         ],
                         outputs=[info0, expansions_state, audio_gr],
@@ -283,7 +299,7 @@ with gr.Blocks(title="WoW Voiceover WebUI", theme = gr.themes.Ocean()) as app:
                             minimum=0.01,
                             maximum=2,
                             label="Speed",
-                            value=1.00,
+                            value=1.05,
                             interactive=True,
                         )
                     with gr.Column():
@@ -340,10 +356,25 @@ with gr.Blocks(title="WoW Voiceover WebUI", theme = gr.themes.Ocean()) as app:
                         )
             with gr.Group():
                 with gr.Row():
+                    reset_btn2 = gr.Button("↺", size="sm", variant="secondary")
+                    emotion_gossip = gr.Dropdown(
+                    label="Emotion (if any) must match a folder name where audios are kept",
+                    choices=(
+                        ['angry','sad', "default"]
+                    ),
+                    value = "default",
+                    multiselect = False,
+                    interactive = True,
+                    allow_custom_value = True,
+                    buttons = [reset_btn2],
+                    )
+                    reset_btn2.click(
+                        lambda: "default",
+                        outputs=emotion_gossip
+                    )
                     with gr.Column():
-                        module_label = gr.Markdown("Module to export audio to")
                         module_name_gossip = gr.Dropdown(
-                            label="",
+                            label="Module to export audio to",
                             choices=(
                                 ['AI_VoiceOverData_VanillaExtra', 'AI_VoiceOverData_TBC', 'AI_VoiceOverData_WoTLK','Testing']
                             ),
@@ -352,8 +383,8 @@ with gr.Blocks(title="WoW Voiceover WebUI", theme = gr.themes.Ocean()) as app:
                             interactive = True
                             )
                     with gr.Column():
-                        npc_label = gr.Markdown("Write the NPC name you will be regenerating audio for")
                         npc_name = gr.Textbox(
+                            label = "Write the NPC name you will be regenerating audio for",
                             interactive = True
                             )
             with gr.Group():
@@ -381,7 +412,8 @@ with gr.Blocks(title="WoW Voiceover WebUI", theme = gr.themes.Ocean()) as app:
                             filter_radius_gossip,
                             resample_sr_gossip,
                             rms_mix_rate_gossip,
-                            protect_gossip
+                            protect_gossip,
+                            emotion_gossip
 
                         ],
                         outputs=[info2, expansions_gossip, audio_gs],
@@ -584,6 +616,7 @@ with gr.Blocks(title="WoW Voiceover WebUI", theme = gr.themes.Ocean()) as app:
                             outputs=info1,
                         )
 app.launch(
+    theme = gr.themes.Ocean(),
     server_name="0.0.0.0",
     server_port=7280
 )
