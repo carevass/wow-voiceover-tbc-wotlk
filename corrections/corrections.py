@@ -4,8 +4,13 @@ def recode_expansions(df, corrections_path):
 
     # Load the corrections Excel file
     quest_corrections = pd.read_excel(corrections_path, sheet_name = 'quest', dtype={"quest": str})
-    quest_corrections = quest_corrections[['quest','expansion']][~quest_corrections['expansion'].isnull()]
+    quest_corrections = quest_corrections[['source','quest','expansion']][~quest_corrections['expansion'].isnull()]
 
+    #subset id corrections with sourc empty i.e., corrections are made for all parts of the quest
+    q_corrections_all = quest_corrections[quest_corrections['source'].isna()]
+
+    #subset id corrections with source populated, i.e., corrections are made for either complete or accept (or both)
+    q_corrections_spec = quest_corrections[quest_corrections['source'].notna()]
 
     id_corrections = pd.read_excel(corrections_path, sheet_name = 'npc', dtype={"id": int, "source":str})
     id_corrections = id_corrections[['id','expansion']][~id_corrections['expansion'].isnull()]
@@ -33,17 +38,32 @@ def recode_expansions(df, corrections_path):
                 #drop the corrections column from the final dataset when finished
                 merged.drop(columns=[f"{col}_corr"], inplace=True)
     # --- Apply recode by quest(not specific) ---
-    if not quest_corrections.empty:
+    # --- Apply corrections by quest(not specific) ---
+    if not q_corrections_all.empty:
         merged = merged.merge(
-            quest_corrections,
+            q_corrections_all,
             on='quest',
             how='left',
             suffixes=('', '_corr')
         )
-        for col in quest_corrections.columns:
+        for col in q_corrections_all.columns:
             if col != 'quest':
                 merged[col] = merged[f"{col}_corr"].combine_first(merged[col])
                 merged.drop(columns=[f"{col}_corr"], inplace=True)
+    # --- Apply corrections by quest (specific) ---
+
+    if not q_corrections_spec.empty:
+        merged = merged.merge(
+            q_corrections_spec,
+            on=['source','quest'],
+            how='left',
+            suffixes=('', '_corr')
+        )
+        for col in q_corrections_spec.columns:
+            if col not in ['source','quest']:
+                merged[col] = merged[f"{col}_corr"].combine_first(merged[col])
+                merged.drop(columns=[f"{col}_corr"], inplace=True)
+
     return merged
 
 def apply_corrections(df, corrections_path):
