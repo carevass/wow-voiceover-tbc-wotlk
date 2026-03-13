@@ -171,7 +171,7 @@ with gr.Blocks(title="WoW Voiceover WebUI") as app:
                     emotion_single = gr.Dropdown(
                         label="Emotion (if any) must match a folder name where audios are kept or be left in default",
                         choices=(
-                            ['angry','sad', "default"]
+                            ['angry','sad',"wise","variation", "default"]
                         ),
                         value = "default",
                         multiselect = False,
@@ -360,7 +360,7 @@ with gr.Blocks(title="WoW Voiceover WebUI") as app:
                     emotion_gossip = gr.Dropdown(
                     label="Emotion (if any) must match a folder name where audios are kept",
                     choices=(
-                        ['angry','sad', "default"]
+                        ['angry','sad',"wise","variation", "default"]
                     ),
                     value = "default",
                     multiselect = False,
