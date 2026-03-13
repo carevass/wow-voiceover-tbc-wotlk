@@ -19,6 +19,9 @@ DATAMODULE_TABLE_GUARD_CLAUSE = 'if not VoiceOver or not VoiceOver.DataModules t
 REPLACE_DICT = {'$b': '\n', '$B': '\n', '$n': 'adventurer', '$N': 'Adventurer',
                 '$C': 'Adventurer', '$c': 'adventurer', '$R': 'Traveler', '$r': 'traveler', '$t citizen : citizen': 'citizen',
                 '$T Civvy : Civvy;': '',
+                '<name>': 'adventurer', '<Name>': 'Adventurer',
+                '<race>': 'traveler', '<Race>': 'Traveler',
+                '<class>': 'adventurer', '<Class>': 'Adventurer',
                  '—':',', '--':',', " - ":", ",
                  # Factions / Regions
                  "Draenei": "Dray-nai",
