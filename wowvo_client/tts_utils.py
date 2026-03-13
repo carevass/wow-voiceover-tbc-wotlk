@@ -59,6 +59,7 @@ REPLACE_DICT = {'$b': '\n', '$B': '\n', '$n': 'adventurer', '$N': 'Adventurer',
                 "Gul'dan":"Gool dan",
                 "undead":"on-ded",
                 "undeath":"on-deth",
+                "Lok'tar ogar":"Loktaro garr",
 
                 # Places
                 #"Azeroth":"Ah-ze-roth",
@@ -347,6 +348,9 @@ class TTSProcessor(TTSEngine):
             elif effect_type == "giant":
                 print("Doing giant effects", flush = True)
                 giant_effects(outpath, voice_key)
+            elif effect_type == "ancient":
+                print("Doing ancient effects", flush = True)
+                giant_effects(outpath, effect_type)
             elif effect_type == "undead":
                 print("Doing undead effects", flush = True)
                 undead_effects(outpath)
@@ -381,6 +385,9 @@ class TTSProcessor(TTSEngine):
 
         for k, v in REPLACE_DICT.items():
             df['cleanedText'] = df['cleanedText'].str.replace(k, v, regex=False, flags=re.IGNORECASE)
+
+        # Remove qpercentage
+        df['cleanedText'] = df['cleanedText'].str.replace(r'\$\d+w', '', regex=True)
 
         #deal with text in brackets: if its all the text for that NPC, keep the text, otherwise remove it
 
