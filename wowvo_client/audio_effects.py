@@ -28,7 +28,8 @@ def dk_effects(mp3_path, voice_key):
 
 
     y, sr = librosa.load(working_path, sr=None)
-    processed = librosa.effects.pitch_shift(y=y, sr=sr, n_steps=-2.75 if voice_key in ('mountain_giant_dk') else -0.5) #raspy voice
+    processed = librosa.effects.pitch_shift(y=y, sr=sr,
+                        n_steps=-2.75 if voice_key in ('vrykul_male_dk','mountain_giant_dk','troll_female_dk','giant_female_dk') else -4 if voice_key in ('naga_male_dk') else -0.5) #raspy voice
 
     # Save processed audio to temp wav file
     temp_final_wav = base_path + "_final.wav"
@@ -203,11 +204,11 @@ def demon_effects(mp3_path, voice_key):
             'gain','-n',
         ], check=True)
         os.remove(temp_effect)
-    elif voice_key in ('demon_male', 'demon_female'):
+    elif voice_key in ('demon_male', 'demon_female','bone_witch','sanlayn'):
         subprocess.run([
             'sox', working_path, changed,
             'pitch', '-100',
-            'echo', '0.8', '0.85', '200', '0.5','400','0.3',
+            'echo', '0.8', '0.85', '150', '0.3',
             'reverb', '30', '100', '20', '1', '100', '-5',
             'gain','-n',
         ], check=True)
@@ -215,9 +216,19 @@ def demon_effects(mp3_path, voice_key):
         print("abomination effects...", flush = True)
         subprocess.run([
             'sox', working_path, changed,
-            'pitch', '-125',
-            'chorus', '0.6', '0.8', '40', '0.3', '0.25', '2', '-t',
+            'pitch', '-250',
+            #'echo', '0.8', '0.85', '50', '0.5','100','0.3','25', '0.6','75','0.4', four echoes sound metallic almost like dk effects from the game
+            'chorus', '0.5', '0.8', '40', '0.3', '0.25', '2', '-t',
             'reverb', '15', '35', '20', '1', '80', '-3',
+            'gain','3',
+            'gain','-n',
+        ], check=True)
+    elif voice_key in ('akama'):
+        print("abomination effects...", flush = True)
+        subprocess.run([
+            'sox', working_path, changed,
+            'pitch', '-250',
+            'reverb', '15', '35', '20', '1', '80', '-5',
             'gain','3',
             'gain','-n',
         ], check=True)
@@ -239,7 +250,7 @@ def demon_effects(mp3_path, voice_key):
         if f.startswith(os.path.basename(base_path)) and f.endswith(".wav"):
             os.remove(os.path.join(os.path.dirname(mp3_path), f))
 
-def ethereal_effects(mp3_path):
+def ethereal_effects(mp3_path, voice_key):
 
     # Load the mp3
     sound = AudioSegment.from_file(mp3_path)
@@ -251,10 +262,22 @@ def ethereal_effects(mp3_path):
     sound.export(working_path, format="wav")
 
     changed = base_path + "_changed.wav"
-    subprocess.run([
-        'sox', working_path, changed,
-        'reverb', '50', '60', '100', '100', '100', '-6'
-    ], check=True)
+    if voice_key in ('ethereal_male'):
+        subprocess.run([
+            'sox', working_path, changed,
+            'echo', '0.8', '0.85', '125', '0.25',
+            'reverb', '50', '60', '100', '100', '100', '-4',
+            'gain','5',
+        ], check=True)
+    elif voice_key in ('ethereal_stalker'):
+        subprocess.run([
+            'sox', working_path, changed,
+            'pitch','-125',
+            'bass', '10',
+            'echo', '0.8', '0.85', '125', '0.25',
+            'reverb', '50', '60', '100', '100', '100', '-4',
+            'gain','7',
+        ], check=True)
     working_path = changed
 
     # Final: overwrite original .mp3 with processed audio
@@ -309,6 +332,11 @@ def giant_effects(mp3_path, voice):
             'reverb', '43', '40', '40', '50', '25', '-4',
             'tempo', '1.2',
         ], check=True)
+    elif voice in ('cairne'):
+        subprocess.run([
+            'sox', working_path, changed,
+            'tempo', '1.2',
+        ], check=True)
     else:
         subprocess.run([
             'sox', working_path, changed,
@@ -345,11 +373,39 @@ def small_effects(mp3_path, voice):
             'gain', '-n'
 
         ], check=True)
-    else:
+    elif voice in ('wolvar_male'):
         subprocess.run([
             'sox', working_path, changed,
             'pitch', '200',
             'reverb', '32', '40', '40', '50', '25', '-8',
+            'gain', '-n'
+
+        ], check=True)
+    elif voice in ('gnome_female'):
+        subprocess.run([
+            'sox', working_path, changed,
+            'pitch', '25',
+            'gain', '-n'
+
+        ], check=True)
+    elif voice in ('girl'):
+        subprocess.run([
+            'sox', working_path, changed,
+            'pitch', '75',
+            'gain', '-n'
+
+        ], check=True)
+    elif voice in ('geist'):
+        subprocess.run([
+            'sox', working_path, changed,
+            'chorus', '0.5', '0.8', '40', '0.3', '0.25', '2', '-t',
+            'gain', '-n'
+
+        ], check=True)
+    else:
+        subprocess.run([
+            'sox', working_path, changed,
+            'pitch', '350',
             'gain', '-n'
 
         ], check=True)
@@ -437,7 +493,7 @@ def comms_effects(mp3_path):
     # Work in-place using temporary intermediate files with .wav extension
 
     base_path = os.path.join(mp3_path[:-4])  # strip .mp3
-    print(base_path)
+
     working_path = base_path + "_proc.wav"
     sound.export(working_path, format="wav")
 
@@ -446,6 +502,33 @@ def comms_effects(mp3_path):
        'sox', working_path, changed,
        'highpass', '300',
        'lowpass','3400',
+
+    ], check=True)
+    working_path = changed
+
+    # Final: overwrite original .mp3 with processed audio
+    final = AudioSegment.from_file(working_path)
+    final.export(mp3_path, format="mp3", bitrate = "64k")
+
+    # Clean up temp wavs
+    for f in os.listdir(os.path.dirname(mp3_path)):
+        if f.startswith(os.path.basename(base_path)) and f.endswith(".wav"):
+            os.remove(os.path.join(os.path.dirname(mp3_path), f))
+def underwater_effects(mp3_path):
+    # Load the mp3
+    sound = AudioSegment.from_file(mp3_path)
+
+    # Work in-place using temporary intermediate files with .wav extension
+
+    base_path = os.path.join(mp3_path[:-4])  # strip .mp3
+    working_path = base_path + "_proc.wav"
+    sound.export(working_path, format="wav")
+
+    changed = base_path + "_changed.wav"
+    subprocess.run([
+       'sox', working_path, changed,
+       'lowpass', '3200',
+       'flanger', '0', '5', '10', '80', '0.3', 'sine', '50', 'quadratic',
 
     ], check=True)
     working_path = changed
@@ -516,6 +599,12 @@ def beast_effects(mp3_path, voice_key):
         effect = 'voices/_effects/wolf.wav'
     elif voice_key in ('bear'):
         effect = 'voices/_effects/bear.wav'
+    elif voice_key in ('cat'):
+        effect = 'voices/_effects/cat.wav'
+    elif voice_key in ('serpent'):
+        effect = 'voices/_effects/serpent.wav'
+    elif voice_key in ('mammoth'):
+        effect = 'voices/_effects/mammoth.wav'
     duration = subprocess.check_output(['soxi', '-D', mp3_path]).decode().strip()
     temp_effect = effect + "_temp_loop.wav"
 
