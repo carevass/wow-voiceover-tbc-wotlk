@@ -69,6 +69,7 @@ def clean_quest_data(tts_processor):
 
     df = df[
         (df['expansion'] != 0) |
+        (df['source'].isin(['progress'])) |
         (df['type'].isin(['item','gameobject'])) |
         (df['DisplayRaceID'] == -77) |
         ((df['DisplayRaceID'] == 8) & (df['DisplaySexID'] == 0))
