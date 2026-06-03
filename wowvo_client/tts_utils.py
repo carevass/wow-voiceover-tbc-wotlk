@@ -235,20 +235,21 @@ class TTSProcessor(TTSEngine):
         if voice_key.endswith("_dk"):
             print(f"DK post-processing for {outpath}")
             dk_effects(outpath, voice_key)
-        elif voice_key in ("sylvanas", "forsaken_male", "forsaken_female"):
+        elif voice_key in ("sylvanas", "forsaken_male", "forsaken_female",'lich_king'):
             print(f"Undead post-processing for {outpath}")
             undead_effects(outpath)
         elif voice_key in ("mechanical", "titan_male"):
             print(f"Robot post-processing for {outpath}")
             robot_effects(outpath)
-        elif voice_key in ("demon_male", "keeper", "dragon_male", "dragon_female",
-            'fire_elemental','water_elemental',"earth_elemental","wind_elemental"):
+        elif voice_key in ("demon_male", "demon_female","keeper", "dragon_male", "dragon_female",
+            'fire_elemental','water_elemental',"earth_elemental","wind_elemental",
+            'abomination', 'bone_witch','sanlayn', 'akama'):
             print(f"Demon post-processing for {outpath}")
             demon_effects(outpath, voice_key)
-        elif voice_key in ("giant_male", "ogre_male", "ogrila_ogre","ancient", "murloc", "mountain_giant"):
+        elif voice_key in ("giant_male", "ogre_male", "ogrila_ogre","ancient", "murloc", "mountain_giant","cairne"):
             print(f"Giant post-processing for {outpath}")
             giant_effects(outpath, voice_key)
-        elif voice_key in ("wolvar_male", "gorloc_male"):
+        elif voice_key in ("wolvar_male", "gorloc_male", "gnome_female","girl", 'geist','sporeggar'):
             print(f"Small creature post-processing for {outpath}")
             small_effects(outpath, voice_key)
         elif voice_key in ("earthen"):
@@ -257,9 +258,9 @@ class TTSProcessor(TTSEngine):
         elif voice_key in ("naaru"):
             print(f"Naaru creature post-processing for {outpath}")
             naaru_effects(outpath)
-        elif voice_key in ("ethereal_male"):
+        elif voice_key in ("ethereal_male", "ethereal_stalker"):
             print(f"Ethereal creature post-processing for {outpath}")
-            ethereal_effects(outpath)
+            ethereal_effects(outpath, voice_key)
         # Apply questgiver-specific effects that don't conform to race_gender categories
         if questgiver_id and questgiver_id in NPC_EFFECTS:
             effect_type = NPC_EFFECTS[questgiver_id]
@@ -287,7 +288,10 @@ class TTSProcessor(TTSEngine):
             elif effect_type == "bubbles":
                 print(f"Bubble effects ...", flush = True)
                 bubble_effects(outpath)
-            elif effect_type in ('wolf','bear'):
+            elif effect_type == "underwater":
+                print(f"Underwater effects ...", flush = True)
+                underwater_effects(outpath)
+            elif effect_type in ('wolf','bear','cat','serpent','mammoth'):
                 print(f"Beast effects ...", flush = True)
                 beast_effects(outpath,voice_key)
         print(f"Audio saved and processed: {outpath}")
