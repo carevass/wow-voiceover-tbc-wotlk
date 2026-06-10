@@ -29,6 +29,7 @@ local LOAD_ALL_MODULES = true
 ---@field ObjectNameLookupByObjectID table<number, string> Maps GameObject ID to GameObject name
 ---@field ItemNameLookupByItemID table<number, string> Maps Item ID to Item name
 ---@field SoundLengthLookupByFileName table<string, number> Maps sound filenames to their duration in seconds
+---@field MultiSpeakerQuests table<number, string|table<string, string>> Maps quest ids with multiple speakers to racegender combinations
 
 ---@class AvailableDataModule
 ---@field AddonName string Addon name
@@ -89,6 +90,36 @@ DataModules =
         },
     },
 }
+
+function DataModules:GetQuestFileName(soundData, suffix)
+    local questID = soundData.questID
+    if UnitExists("target") then
+      local tempModel = CreateFrame("PlayerModel")
+      tempModel:SetUnit("target")
+      local targetmodel = tempModel:GetModel()
+      if targetmodel and type(targetmodel) == "string" then
+        local speaker = string.match(targetmodel, "([^\\|^/]+)%.m2$")
+        if speaker then
+          for _, module in self:GetModules() do
+            local data = module.MultiSpeakerQuests
+            if data then
+              -- Check if this specific Quest ID exists in our multi-speaker overrides
+              if questID and data[suffix][questID] then
+                  -- Check if the interacting NPC name is mapped to a prefix
+                  local prefix = data[suffix][questID][speaker]
+                  if prefix then
+                      -- Return the custom multi-speaker format: "prefix-questID-suffix"
+                      return format("%s-%d-%s", prefix, questID, suffix)
+                  end
+              end
+            end
+          end
+        end
+      end
+    end
+    -- Fallback: Return the original default format if no override matches
+    return format("%d-%s", questID, suffix)
+end
 
 ---@param a DataModule|DataModuleMetadata
 ---@param b DataModule|DataModuleMetadata
@@ -448,9 +479,9 @@ end
 ---@type table<SoundEvent, fun(soundData: SoundData): string|nil>
 local getFileNameForEvent =
 {
-    [Enums.SoundEvent.QuestAccept]   = function(soundData) return format("%d-%s", soundData.questID, "accept") end,
-    [Enums.SoundEvent.QuestProgress] = function(soundData) return format("%d-%s", soundData.questID, "progress") end,
-    [Enums.SoundEvent.QuestComplete] = function(soundData) return format("%d-%s", soundData.questID, "complete") end,
+    [Enums.SoundEvent.QuestAccept]   = function(soundData) return DataModules:GetQuestFileName(soundData, "accept") end,
+    [Enums.SoundEvent.QuestProgress] = function(soundData) return DataModules:GetQuestFileName(soundData, "progress") end,
+    [Enums.SoundEvent.QuestComplete] = function(soundData) return DataModules:GetQuestFileName(soundData, "complete") end,
     [Enums.SoundEvent.QuestGreeting] = function(soundData) return DataModules:GetNPCGossipTextHash(soundData) end,
     [Enums.SoundEvent.Gossip]        = function(soundData) return DataModules:GetNPCGossipTextHash(soundData) end,
 }
