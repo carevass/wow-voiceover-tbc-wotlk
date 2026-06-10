@@ -17,6 +17,25 @@ local HIDE_GOSSIP_OPTIONS = true -- Disable to allow gossip options to show up i
 local WAIT_FOR_ANIMATION_FINISH_BEFORE_IDLE = true
 local CAN_MODEL_LOAD_CACHE = Version:IsRetailOrAboveLegacyVersion(60000)
 
+local EventSuffixes = {
+    [Enums.SoundEvent.QuestAccept]   = "accept",
+    [Enums.SoundEvent.QuestComplete] = "complete",
+    [Enums.SoundEvent.QuestProgress] = "progress",
+}
+local function IsMultiSpeakerQuest(questID, event)
+    if not questID then return false end
+    local suffix = EventSuffixes[event] or "gossip"
+
+    for _, module in DataModules:GetModules() do
+        local data = module.MultiSpeakerQuests
+        if data and data[suffix] and data[suffix][questID] then
+            return true
+        end
+    end
+    return false
+end
+
+
 local stutteringModels = {
     [124452]  = true, -- humanfemalefarmer
     [124565]  = true, -- humlblacksmith
@@ -50,6 +69,8 @@ local stutteringModels = {
     [123934] = true, -- fire elemental
     [125796] = true, -- satyr
     [126171] = true, -- tigers
+    [124315] = true, -- gyrocopter
+    [124186] = true, -- gnoll caster
 }
 
 -- Helper to decide which animation to use
@@ -290,19 +311,45 @@ function SoundQueueUI:InitPortrait()
     self.frame.portrait = CreateFrame("Frame", nil, self.frame)
     self.frame.portrait:SetPoint("TOPLEFT")
     self.frame.portrait:SetSize(PORTRAIT_SIZE, PORTRAIT_SIZE)
+
+-- Create BOTH models safely at login (Bypasses the "white hair/glitch" engine bug)
+    local dressUpModelFrame = CreateFrame("DressUpModel", nil, self.frame.portrait)
+    local playerModelFrame = CreateFrame("PlayerModel", nil, self.frame.portrait)
+
+    -- Hide them by default
+    dressUpModelFrame:Hide()
+    playerModelFrame:Hide()
+
+
     function self.frame.portrait:Configure(soundData)
         if not self:IsShown() then
             return
         end
 
         if not soundData then
-            self.model:Hide()
-            self.book:Hide()
+          dressUpModelFrame:Hide()
+          playerModelFrame:Hide()
+          self.book:Hide()
         elseif ShouldShowBookFor(soundData) then
-            self.model:Hide()
-            self.book:Show()
-        else
-            self.model = soundData.modelFrame or self.model
+                    dressUpModelFrame:Hide()
+                    playerModelFrame:Hide()
+                    self.book:Show()
+                    return -- Exit early
+                else
+                    self.book:Hide()
+
+                    -- DYNAMIC SWITCH: Choose which model frame to activate based on data
+                    if IsMultiSpeakerQuest(soundData.questID, soundData.event) then
+                        dressUpModelFrame:Hide()
+                        self.model = playerModelFrame
+                    else
+                        playerModelFrame:Hide()
+                        self.model = dressUpModelFrame
+                    end
+                  -- If the addon core passed us an explicit frame override, respect it
+                  self.model = soundData.modelFrame or self.model
+                  self.model:Show()
+                  self.model:SetAllPoints()
 
             if not self.model._initialized then
                 self.model._initialized = true
@@ -317,10 +364,14 @@ function SoundQueueUI:InitPortrait()
                 self.model:HookScript("OnUpdate", function(self, elapsed)
                     -- If the creature wasn't cached - continuously retry setting the model until it succeeds
                     if CAN_MODEL_LOAD_CACHE and self.oldCreatureID and not self:GetModelFileID() then
+                      if self:GetObjectType() == "PlayerModel" and UnitExists("target") then
+                        self:SetUnit("target")
+                      else
                         self:SetCreature(self.oldCreatureID)
-                        if not self:GetModelFileID() then
-                            return
-                        end
+                      end
+                      if not self:GetModelFileID() then
+                        return
+                      end
                     end
                     -- Refresh camera and animation in case the model wasn't loaded instantly
                     self:SetCustomCamera(0)
@@ -384,7 +435,12 @@ function SoundQueueUI:InitPortrait()
                     self.model:ClearModel()
                 end
                 self.model:SetCreature(creatureID)
-
+                -- APPLY IDENTITY ASSETS SAFELY
+                if self.model:GetObjectType() == "PlayerModel" and UnitExists("target") then
+                    self.model:SetUnit("target")
+                else
+                    self.model:SetCreature(creatureID)
+                end
                 self.model:SetCustomCamera(0)
                 self.model:SetModelScale(2)
 
@@ -410,8 +466,8 @@ function SoundQueueUI:InitPortrait()
     self.frame.portrait.background:SetTexture([[Interface\AddOns\AI_VoiceOver\Textures\PortraitFrameBackground]])
 
     -- Create a 3D model
-    self.frame.portrait.model = CreateFrame("DressUpModel", nil, self.frame.portrait)
-    self.frame.portrait.defaultModel = self.frame.portrait.model
+    --self.frame.portrait.model = CreateFrame(DecideModelFrames(soundData), nil, self.frame.portrait)
+    --self.frame.portrait.defaultModel = self.frame.portrait.model
 
 
     -- Create a book icon replacement when the 3D portrait is unavailable
@@ -423,7 +479,7 @@ function SoundQueueUI:InitPortrait()
 
     -- Create a play/pause button with a semi-transparent background (mimicking the portrait frame's background to create an illusion of the 3D model becoming semi-transparent)
     self.frame.portrait.pause = CreateFrame("Button", nil, self.frame.portrait)
-    self.frame.portrait.pause:SetFrameLevel(self.frame.portrait.model:GetFrameLevel() + 1)
+    self.frame.portrait.pause:SetFrameLevel(dressUpModelFrame:GetFrameLevel() + 5) -- Set high enough to sit over both meshes
     self.frame.portrait.pause:SetAllPoints()
     self.frame.portrait.pause.background = self.frame.portrait.pause:CreateTexture(nil, "BACKGROUND")
     self.frame.portrait.pause.background:SetAllPoints()
