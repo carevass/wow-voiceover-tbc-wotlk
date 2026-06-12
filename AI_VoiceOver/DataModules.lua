@@ -30,6 +30,7 @@ local LOAD_ALL_MODULES = true
 ---@field ItemNameLookupByItemID table<number, string> Maps Item ID to Item name
 ---@field SoundLengthLookupByFileName table<string, number> Maps sound filenames to their duration in seconds
 ---@field MultiSpeakerQuests table<number, string|table<string, string>> Maps quest ids with multiple speakers to racegender combinations
+---@field MultiSpeakerGossip table<string, string, table<string, string>> Maps npc names with multiple speakers to correct audio hash
 
 ---@class AvailableDataModule
 ---@field AddonName string Addon name
@@ -102,7 +103,7 @@ function DataModules:GetQuestFileName(soundData, suffix)
         if speaker then
           for _, module in self:GetModules() do
             local data = module.MultiSpeakerQuests
-            if data then
+            if data and data[suffix] then
               -- Check if this specific Quest ID exists in our multi-speaker overrides
               if questID and data[suffix][questID] then
                   -- Check if the interacting NPC name is mapped to a prefix
@@ -318,22 +319,51 @@ function DataModules:GetNPCGossipTextHash(soundData)
         npc = replaceDoubleQuotes(soundData.name)
     end
     local text = soundData.text
-
     local text_entries = {}
 
-    for _, module in self:GetModules() do
-        local data = module[table]
-        if data then
-            local npc_gossip_table = data[npc]
-            if npc_gossip_table then
-                for text, hash in pairs(npc_gossip_table) do
-                    text_entries[text] = text_entries[text] or
-                        hash -- Respect module priority, don't overwrite the entry if there is already one
-                end
-            end
+    local speaker = nil
+    if UnitExists("target") then
+      local tempModel = CreateFrame("PlayerModel")
+      tempModel:SetUnit("target")
+      local targetmodel = tempModel:GetModel()
+      if targetmodel and type(targetmodel) == "string" then
+        speaker = string.match(targetmodel, "([^\\|^/]+)%.m2$")
+      end
+    end
+    local npc_name = replaceDoubleQuotes(soundData.name)
+
+
+    if speaker then
+      for _, module in self:GetModules() do
+        local multidata = module.MultiSpeakerGossip
+        if multidata and multidata[npc_name] and multidata[npc_name][speaker] then
+          local npc_gossip_table = multidata[npc_name][speaker]
+          for text, hash in pairs(npc_gossip_table) do
+              text_entries[text] = text_entries[text] or hash -- Respect module priority, don't overwrite the entry if there is already one
+          end
         end
+      end
+    end
+    if text_entries[text] then
+      local best_result = FuzzySearchBestKeys(text, text_entries)
+      return best_result and best_result.value
+
     end
 
+
+    text_entries = {}
+    for _, module in self:GetModules() do
+      local data = module[table]
+      if data then
+          local npc_gossip_table = data[npc]
+          if npc_gossip_table then
+              for text, hash in pairs(npc_gossip_table) do
+                  text_entries[text] = text_entries[text] or
+                      hash -- Respect module priority, don't overwrite the entry if there is already one
+              end
+          end
+      end
+    end
     local best_result = FuzzySearchBestKeys(text, text_entries)
     return best_result and best_result.value
 end
