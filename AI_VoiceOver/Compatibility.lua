@@ -446,6 +446,8 @@ if Version:IsBelowLegacyVersion(70000) then
             ["creature/fireelemental/fireelemental"]                    = 123934,
             ["creature/satyr/satyr"]                                    = 125796,
             ["creature/tiger/tiger"]                                    = 126171,
+            ["creature/gyrocopter/gyrocopter_02"]                       = 124315,
+            ["creature/gnollcaster/gnollcaster"]                        = 124186,
 
         },
         ["HD"] = {
