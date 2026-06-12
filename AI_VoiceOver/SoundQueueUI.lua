@@ -22,13 +22,13 @@ local EventSuffixes = {
     [Enums.SoundEvent.QuestComplete] = "complete",
     [Enums.SoundEvent.QuestProgress] = "progress",
 }
-local function IsMultiSpeakerQuest(questID, event)
-    if not questID then return false end
+local function IsMultiSpeakerEvent(questID, event, npc_name)
     local suffix = EventSuffixes[event] or "gossip"
 
     for _, module in DataModules:GetModules() do
         local data = module.MultiSpeakerQuests
-        if data and data[suffix] and data[suffix][questID] then
+        local data2 = module.MultiSpeakerGossip
+        if (data and data[suffix] and data[suffix][questID]) or (data2 and data2[npc_name])  then
             return true
         end
     end
@@ -339,7 +339,7 @@ function SoundQueueUI:InitPortrait()
                     self.book:Hide()
 
                     -- DYNAMIC SWITCH: Choose which model frame to activate based on data
-                    if IsMultiSpeakerQuest(soundData.questID, soundData.event) then
+                    if IsMultiSpeakerEvent(soundData.questID, soundData.event, soundData.name) then
                         dressUpModelFrame:Hide()
                         self.model = playerModelFrame
                     else
