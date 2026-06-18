@@ -24,11 +24,11 @@ local EventSuffixes = {
 }
 local function IsMultiSpeakerEvent(questID, event, npc_name)
     local suffix = EventSuffixes[event] or "gossip"
-
     for _, module in DataModules:GetModules() do
         local data = module.MultiSpeakerQuests
         local data2 = module.MultiSpeakerGossip
-        if (data and data[suffix] and data[suffix][questID]) or (data2 and data2[npc_name])  then
+        local data3 = module.MultiSpeakerQuestLog -- want questlog playback to default to dressupmodel
+        if ((data and data[suffix] and data[suffix][questID]) or (data2 and data2[npc_name])) and not(data3[questID])  then
             return true
         end
     end
@@ -445,6 +445,7 @@ function SoundQueueUI:InitPortrait()
                 self.model:SetModelScale(2)
 
 
+
 		self.model.animation = GetTalkAnimationForModel(self.model)
                 self.model.animDuration = nil
                 self.model.animDelay = soundData.delay
@@ -464,6 +465,11 @@ function SoundQueueUI:InitPortrait()
     self.frame.portrait.background = self.frame.portrait:CreateTexture(nil, "BACKGROUND")
     self.frame.portrait.background:SetAllPoints()
     self.frame.portrait.background:SetTexture([[Interface\AddOns\AI_VoiceOver\Textures\PortraitFrameBackground]])
+
+
+    -- Anchor a default tracking reference (we point to DressUpModel by default)
+    self.frame.portrait.model = dressUpModelFrame
+    self.frame.portrait.defaultModel = dressUpModelFrame
 
     -- Create a 3D model
     --self.frame.portrait.model = CreateFrame(DecideModelFrames(soundData), nil, self.frame.portrait)
