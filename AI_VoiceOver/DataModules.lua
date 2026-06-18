@@ -94,7 +94,9 @@ DataModules =
 
 function DataModules:GetQuestFileName(soundData, suffix)
     local questID = soundData.questID
-    if UnitExists("target") then
+    local isQuestLogPlayback = (QuestLogFrame and QuestLogFrame:IsShown()) or (QuestMapFrame and QuestMapFrame:IsShown())
+    -- Check if the quest matches the currently viewed log quest
+    if UnitExists("target") and not(isQuestLogPlayback) then
       local tempModel = CreateFrame("PlayerModel")
       tempModel:SetUnit("target")
       local targetmodel = tempModel:GetModel()
@@ -114,6 +116,17 @@ function DataModules:GetQuestFileName(soundData, suffix)
                   end
               end
             end
+          end
+        end
+      end
+    elseif soundData.questID then
+      for _, module in self:GetModules() do
+        local data = module.MultiSpeakerQuestLog
+        if data and data[questID] then
+          local prefix = data[questID]
+          if prefix then
+              -- Return the custom multi-speaker format: "prefix-questID-suffix"
+              return format("%s-%d-%s", prefix, questID, suffix)
           end
         end
       end
@@ -319,6 +332,7 @@ function DataModules:GetNPCGossipTextHash(soundData)
         npc = replaceDoubleQuotes(soundData.name)
     end
     local text = soundData.text
+
     local text_entries = {}
 
     local speaker = nil
@@ -344,10 +358,10 @@ function DataModules:GetNPCGossipTextHash(soundData)
         end
       end
     end
-    if text_entries[text] then
-      local best_result = FuzzySearchBestKeys(text, text_entries)
-      return best_result and best_result.value
 
+    local best_result = FuzzySearchBestKeys(text, text_entries)
+    if best_result then
+      return best_result and best_result.value
     end
 
 
