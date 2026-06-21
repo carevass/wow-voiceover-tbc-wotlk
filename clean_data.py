@@ -68,7 +68,7 @@ def clean_quest_data(tts_processor):
     '''
 
     df = df[
-        (df['expansion'] != 0) |
+        (df['expansion'] > 0) |
         (df['source'].isin(['progress'])) |
         (df['type'].isin(['item','gameobject'])) |
         (df['DisplayRaceID'] == -77) |
@@ -101,6 +101,25 @@ def clean_quest_data(tts_processor):
 
     # Apply the replacement
     df['voice_name'] = df['voice_name'].replace(replace_map)
+    #manually replace some death knight initiate voice_name values to dk, since its same entry id cannot do it via corrections
+
+
+
+    df.loc[(df['id'] == 28406), 'voice_name'] = df.loc[(df['id'] == 28406), 'voice_name']+"_dk"
+
+    #working to add multivoice audio generation
+    df['multi_voice'] = None
+
+    non_gossip_mask = df['source'] != 'gossip'
+    df.loc[non_gossip_mask, 'multi_voice'] = df[non_gossip_mask].groupby(['quest', 'text'])['voice_name'].transform('nunique')
+
+    gossip_mask = df['source'] == 'gossip'
+    df.loc[gossip_mask, 'multi_voice'] = df[gossip_mask].groupby(['text', 'name'])['voice_name'].transform('nunique')
+
+    condition = (df['multi_voice'] > 1)
+
+    df['multi_name'] = None
+    df.loc[condition, 'multi_name'] = df.loc[condition, 'voice_name'].str.replace(r"_", "", regex=True)
 
 
     #correct some gossips that have nan for quest and quest_title

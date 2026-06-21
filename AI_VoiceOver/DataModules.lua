@@ -31,6 +31,7 @@ local LOAD_ALL_MODULES = true
 ---@field SoundLengthLookupByFileName table<string, number> Maps sound filenames to their duration in seconds
 ---@field MultiSpeakerQuests table<number, string|table<string, string>> Maps quest ids with multiple speakers to racegender combinations
 ---@field MultiSpeakerGossip table<string, string, table<string, string>> Maps npc names with multiple speakers to correct audio hash
+---@field MultiSpeakerQuestLog table<number, string> Maps quest ids with multiple speakers to racegender combinations
 
 ---@class AvailableDataModule
 ---@field AddonName string Addon name
@@ -91,13 +92,29 @@ DataModules =
         },
     },
 }
+local tempModel = CreateFrame("PlayerModel")
 
 function DataModules:GetQuestFileName(soundData, suffix)
     local questID = soundData.questID
+
     local isQuestLogPlayback = (QuestLogFrame and QuestLogFrame:IsShown()) or (QuestMapFrame and QuestMapFrame:IsShown())
+
+    if isQuestLogPlayback then
+      for _, module in self:GetModules() do
+        local data = module.MultiSpeakerQuestLog
+        if data and data[questID] then
+          local prefix = data[questID]
+          if prefix then
+              -- Return the custom multi-speaker format: "prefix-questID-suffix"
+              return format("%s-%d-%s", prefix, questID, suffix)
+          end
+        end
+      end
+      return format("%d-%s", questID, suffix)
+    end
     -- Check if the quest matches the currently viewed log quest
-    if UnitExists("target") and not(isQuestLogPlayback) then
-      local tempModel = CreateFrame("PlayerModel")
+    if UnitExists("target") then
+      tempModel:ClearModel()
       tempModel:SetUnit("target")
       local targetmodel = tempModel:GetModel()
       if targetmodel and type(targetmodel) == "string" then
@@ -116,17 +133,6 @@ function DataModules:GetQuestFileName(soundData, suffix)
                   end
               end
             end
-          end
-        end
-      end
-    elseif soundData.questID then
-      for _, module in self:GetModules() do
-        local data = module.MultiSpeakerQuestLog
-        if data and data[questID] then
-          local prefix = data[questID]
-          if prefix then
-              -- Return the custom multi-speaker format: "prefix-questID-suffix"
-              return format("%s-%d-%s", prefix, questID, suffix)
           end
         end
       end

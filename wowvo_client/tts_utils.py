@@ -79,6 +79,13 @@ def clean_folder(df, expansions=[0, 1, 2], module_name="AI_VoiceOverData_TBC"):
         if row.get("player_gender") in ["m", "f"]:
             filename = f"{row['player_gender']}-{base_name}"
             expected_files.add(os.path.join(subfolder, filename))
+        if row["multi_name"] is not None:
+            if row["source"] not in "gossip":
+                filename = f"{row['multi_name']}-{base_name}"
+                expected_files.add(os.path.join(subfolder, filename))
+            elif row["source"] in "gossip":
+                filename = base_name
+                expected_files.add(os.path.join(subfolder, filename))
         else:
             # Add both gendered and non-gendered, just in case
             expected_files.add(os.path.join(subfolder, base_name))
@@ -143,7 +150,7 @@ class TTSProcessor(TTSEngine):
 
         return voice_path
 
-    def tts(self, text, voice_name, output_name, output_subfolder, forceGen=True, questgiver_id=None,
+    def tts(self, text, voice_name, output_name, output_subfolder, forceGen=False, questgiver_id=None,
                           temperature = 0.75, length_penalty = 1.0, repetition_penalty = 10.0,
                           top_k = 1, top_p = 1.0, speed = 1.05, f0_up_key = 0, f0_method = "rmvpe",
                           index_rate = 0.70, filter_radius = 3, resample_sr = 0, rms_mix_rate = 1,
@@ -375,6 +382,7 @@ class TTSProcessor(TTSEngine):
         df["cleanedText"] = df["cleanedText"].str.replace(r'(?:\b[01]{8}\b\s*)+', '', regex = True)
 
         df['player_gender'] = None
+
         rows = []
         for _, row in df.iterrows():
             if re.search(r'\$[Gg]', row['cleanedText']):
@@ -442,6 +450,9 @@ class TTSProcessor(TTSEngine):
         file_name =  f'{row["quest"]}-{row["source"]}' if row['quest'] else f'{row["templateText_race_gender_hash"]}'
         if row['player_gender'] is not None:
             file_name = row['player_gender'] + '-'+ file_name
+        if row['multi_name'] is not None:
+            if row['source'] not in "gossip":
+                file_name = row['multi_name'] + '-'+ file_name
         file_name = file_name + '.mp3'
         subfolder = 'quests' if row['quest'] else 'gossip'
         questgiver_id = row['id'] if row['id'] else None
@@ -464,6 +475,80 @@ class TTSProcessor(TTSEngine):
                 for row, custom_message in zip(df.iterrows(), executor.map(row_proccesing_fn, df.itertuples())):
                     pbar.set_postfix_str(custom_message)
                     pbar.update(1)
+    def quest_multi_speaker_lookups_table(self, df, module_name, type, table, filename):
+        output_file = self.output_folder + f"/{filename}.lua"
+        multispeaker_table = {}
+
+
+        for i, row in tqdm(df.iterrows()):
+            source = row['source']
+            if source not in 'gossip':
+                if row['multi_name'] is not None:
+                    quest_id = int(row['quest'])
+                    npc_name = row['name']
+                    voicename = row['multi_name']
+
+                    if source not in multispeaker_table:
+                        multispeaker_table[source] = {}
+                    if quest_id not in multispeaker_table[source]:
+                        multispeaker_table[source][quest_id] = {}
+                    if voicename not in multispeaker_table[source][quest_id]:
+                        multispeaker_table[source][quest_id][voicename] = voicename
+
+        with open(output_file, "w", encoding="UTF-8") as f:
+            f.write(DATAMODULE_TABLE_GUARD_CLAUSE + "\n")
+            f.write(f"{module_name}.{table} = ")
+            f.write(lua.encode(multispeaker_table))
+            f.write("\n")
+
+        print(f"Finished writing {filename}.lua")
+    def quest_multi_speaker_quest_log_lookups_table(self, df, module_name, type, table, filename):
+        output_file = self.output_folder + f"/{filename}.lua"
+        multispeaker_table = {}
+        accept_df = df[df['source'] == 'accept']
+        for i, row in tqdm(accept_df.iterrows()):
+            if row['multi_name'] is not None:
+                multispeaker_table[int(row['quest'])] = row['multi_name']
+
+        with open(output_file, "w", encoding="UTF-8") as f:
+            f.write(DATAMODULE_TABLE_GUARD_CLAUSE + "\n")
+            f.write(f"{module_name}.{table} = ")
+            f.write(lua.encode(multispeaker_table))
+            f.write("\n")
+
+        print(f"Finished writing {filename}.lua")
+
+    def gossip_multi_speaker_lookups_table(self, df, module_name, type, table, filename):
+        output_file = self.output_folder + f"/{filename}.lua"
+        multispeaker_table = {}
+
+
+        for i, row in tqdm(df.iterrows()):
+            source = row['source']
+            if source in 'gossip':
+                if row['multi_name'] is not None:
+                    npc_name = row['name']
+                    escaped_npc_name = npc_name.replace('"', '\'').replace('\r',' ').replace('\n',' ')
+                    voicename = row['multi_name']
+                    gossip_hash = row['templateText_race_gender_hash']
+                    escapedText = row['text'].replace('"', '\'').replace('\r',' ').replace('\n',' ')
+
+                    if escaped_npc_name not in multispeaker_table:
+                        multispeaker_table[escaped_npc_name] = {}
+                    if voicename not in multispeaker_table[escaped_npc_name]:
+                        multispeaker_table[escaped_npc_name][voicename] = {}
+                    if escapedText not in multispeaker_table[escaped_npc_name][voicename]:
+                        multispeaker_table[escaped_npc_name][voicename][escapedText] = {}
+
+                    multispeaker_table[escaped_npc_name][voicename][escapedText] = gossip_hash
+
+        with open(output_file, "w", encoding="UTF-8") as f:
+            f.write(DATAMODULE_TABLE_GUARD_CLAUSE + "\n")
+            f.write(f"{module_name}.{table} = ")
+            f.write(lua.encode(multispeaker_table))
+            f.write("\n")
+
+        print(f"Finished writing {filename}.lua")
 
 
     def write_gossip_file_lookups_table(self, df, module_name, type, table, filename):
@@ -603,7 +688,7 @@ class TTSProcessor(TTSEngine):
         if 2 in expansions:
             expansions.append(-99)
 
-        df = df[df['expansion'].isin(exp_for_audio)]
+        df = df[df['expansion'].isin(exp_for_audio) & (df['expansion'] >= 0)]
         df.sort_values("voice_name")
 
         if module_name:
@@ -652,6 +737,9 @@ class TTSProcessor(TTSEngine):
         self.write_npc_name_lookup_table(df, module_name, 'creature',   'NPCNameLookupByNPCID',       'npc_name_lookups')
         self.write_npc_name_lookup_table(df, module_name, 'gameobject', 'ObjectNameLookupByObjectID', 'object_name_lookups')
         self.write_npc_name_lookup_table(df, module_name, 'item',       'ItemNameLookupByItemID',     'item_name_lookups')
+        self.quest_multi_speaker_lookups_table(df, module_name, 'npc',     'MultiSpeakerQuests',     'multi_speaker_quests')
+        self.gossip_multi_speaker_lookups_table(df, module_name, 'npc',    'MultiSpeakerGossip',     'multi_speaker_gossip')
+        self.quest_multi_speaker_quest_log_lookups_table(df, module_name, 'npc',   'MultiSpeakerQuestLog',     'multi_speaker_quest_log')
 
         write_sound_length_table_lua(module_name, self.sound_output_folder, self.output_folder)
         print("Updated sound_length_table.lua")
@@ -699,6 +787,9 @@ class TTSProcessor(TTSEngine):
             file_name = f'{row["quest"]}-{row["source"]}' if row['quest'] else f'{row["templateText_race_gender_hash"]}'
             if row['player_gender'] is not None:
                 file_name = row['player_gender'] + '-' + file_name
+            if row['multi_name'] is not None:
+                if row['source'] not in "gossip":
+                    file_name = row['multi_name'] + '-' + file_name
             file_name = file_name + '.mp3'
 
             subfolder = 'quests' if row['quest'] else 'gossip'
@@ -756,6 +847,9 @@ class TTSProcessor(TTSEngine):
             file_name = f'{row["quest"]}-{row["source"]}' if row['quest'] else f'{row["templateText_race_gender_hash"]}'
             if row['player_gender'] is not None:
                 file_name = row['player_gender'] + '-' + file_name
+            if row['multi_name'] is not None:
+                if row['source'] not in "gossip":
+                    file_name = row['multi_name'] + '-' + file_name
             file_name = file_name + '.mp3'
 
             subfolder = 'quests' if row['quest'] else 'gossip'

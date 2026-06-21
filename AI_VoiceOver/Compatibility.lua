@@ -448,6 +448,7 @@ if Version:IsBelowLegacyVersion(70000) then
             ["creature/tiger/tiger"]                                    = 126171,
             ["creature/gyrocopter/gyrocopter_02"]                       = 124315,
             ["creature/gnollcaster/gnollcaster"]                        = 124186,
+            ["creature/chicken/chicken"]                                = 123200,
 
         },
         ["HD"] = {

@@ -5,7 +5,7 @@ rvc/assets/*
 tts_gossip_custom.py
 tts_dataframe.py
 tts_quest.py
-AI_VoiceOver
+tts_custom.py
 AI_VoiceOver.zip
 AI_VoiceOverData_VanillaExtra
 AI_VoiceOverData_TBC

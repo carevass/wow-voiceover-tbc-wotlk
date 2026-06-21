@@ -136,12 +136,12 @@ def apply_corrections(df, corrections_path):
 def add_new_entries(df, xlsx_path):
     # Load the new rows from Excel
     new_rows = pd.read_excel(xlsx_path, keep_default_na = False, dtype={"quest": str})
-    #new_rows['quest'] = new_rows['quest'].astype(str)
+
 
 
     # Check for fully duplicated rows
-    duplicates = new_rows[new_rows.isin(df.to_dict(orient='list')).all(axis=1)]
-
+    #duplicates = new_rows[new_rows.isin(df.to_dict(orient='list')).all(axis=1)]
+    duplicates = new_rows[new_rows.set_index(list(new_rows.columns)).index.isin(df.set_index(list(df.columns)).index)]
     if not duplicates.empty:
         raise ValueError(f"{len(duplicates)} duplicate row(s) found in the Excel file that already exist in the DataFrame: \n {duplicates['quest']}-{duplicates['source']} ")
     # Concatenate and return the updated DataFrame
