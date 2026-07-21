@@ -15,7 +15,7 @@ def make_connection():
 
 
 
-def query_dataframe_for_all_quests_and_gossip(lang: int = 0):
+def query_dataframe_for_all_quests_and_gossip(lang: int = 0, langStr = None):
     db = make_connection()
     sql_query = '''
 WITH RECURSIVE
@@ -332,40 +332,51 @@ FROM ALL_DATA
 SELECT
     source,
     quest,
-    IFNULL(NULLIF(lq.title_loc{lang}, ''), quest_title) as quest_title,
+    IFNULL(NULLIF(lq.title, ''), quest_title) as quest_title,
     IFNULL(NULLIF(CASE source
         WHEN 'gossip' THEN (CASE
-            WHEN broadcast_text_id = 0 THEN qg.content_loc{lang}
-            WHEN ALL_DATA.type = 'creature' THEN IF(DisplaySexID = 0, lbt.male_text_loc{lang}, lbt.female_text_loc{lang})
-            ELSE IFNULL(NULLIF(lbt.male_text_loc{lang}, ''), lbt.female_text_loc{lang})
+            WHEN broadcast_text_id = 0 THEN qg.Greeting
+            WHEN ALL_DATA.type = 'creature' THEN IF(DisplaySexID = 0, lbt.MaleText, lbt.FemaleText)
+            ELSE IFNULL(NULLIF(lbt.MaleText, ''), lbt.FemaleText)
         END)
-        WHEN 'accept'   THEN lq.Details_loc{lang}
-        WHEN 'progress' THEN lq.RequestItemsText_loc{lang}
-        WHEN 'complete' THEN lq.OfferRewardText_loc{lang}
+        WHEN 'accept'   THEN lq.Details
+        WHEN 'progress' THEN qril.CompletionText
+        WHEN 'complete' THEN qorl.RewardText
+        
+        
         ELSE NULL
     END, ''), text) as text,
     DisplayRaceID,
     DisplaySexID,
     IFNULL(NULLIF(CASE ALL_DATA.type
-        WHEN 'creature'   THEN lc.name_loc{lang}
-        WHEN 'gameobject' THEN lg.name_loc{lang}
-        WHEN 'item'       THEN li.name_loc{lang}
+        WHEN 'creature'   THEN lc.Name
+        WHEN 'gameobject' THEN lg.Name
+        WHEN 'item'       THEN li.Name
+        
         ELSE NULL
-    END, ''), name) as name,
+    END, ''), ALL_DATA.name) as name,
     ALL_DATA.type,
-    id,
-    text as original_text
+    ALL_DATA.id,
+    ALL_DATA.text as original_text
 FROM ALL_DATA
-    LEFT JOIN wotlk_mangos.locales_quest          lq  ON lq .entry = quest
-    LEFT JOIN wotlk_mangos.locales_broadcast_text lbt ON lbt.entry = broadcast_text_id
-    LEFT JOIN wotlk_mangos.locales_creature       lc  ON lc .entry = id AND type = 'creature'
-    LEFT JOIN wotlk_mangos.locales_gameobject     lg  ON lg .entry = id AND type = 'gameobject'
-    LEFT JOIN wotlk_mangos.locales_item           li  ON li .entry = id AND type = 'item'
-    LEFT JOIN wotlk_mangos.quest_greeting         qg  ON qg .entry = id AND qg.type = (CASE ALL_DATA.type WHEN 'creature' THEN 0 WHEN 'gameobject' THEN 1 ELSE -1 END)
+    LEFT JOIN wotlk_mangos.quest_template_locale    lq  ON lq.ID = ALL_DATA.quest AND lq.locale = %(langStr)s
+    LEFT JOIN wotlk_mangos.quest_request_items_locale    qril  ON qril.ID = ALL_DATA.quest AND qril.locale = %(langStr)s
+    LEFT JOIN wotlk_mangos.quest_offer_reward_locale    qorl  ON qorl.ID = ALL_DATA.quest AND qorl.locale = %(langStr)s
+    
+    LEFT JOIN wotlk_mangos.broadcast_text_locale lbt ON lbt.ID = broadcast_text_id AND lbt.locale = %(langStr)s 
+    
+    LEFT JOIN wotlk_mangos.creature_template_locale lc  ON lc.entry = ALL_DATA.id AND type = 'creature' AND lc.locale = %(langStr)s 
+    
+    LEFT JOIN wotlk_mangos.gameobject_template_locale     lg  ON lg .entry = ALL_DATA.id AND type = 'gameobject' AND lg.locale = %(langStr)s
+    
+    LEFT JOIN wotlk_mangos.item_template_locale           li  ON li .ID = ALL_DATA.id AND type = 'item' AND li.locale = %(langStr)s
+    
+    LEFT JOIN wotlk_mangos.quest_greeting_locale         qg  ON qg.ID = ALL_DATA.id AND qg.type = (CASE ALL_DATA.type WHEN 'creature' THEN 0 WHEN 'gameobject' THEN 1 ELSE -1 END) AND qg.locale = %(langStr)s
+    
         '''
 
     with db.cursor() as cursor:
-        cursor.execute(sql_query)
+        cursor.execute(sql_query, {'langStr': langStr})
         data = cursor.fetchall()
         columns = [desc[0] for desc in cursor.description]
 
