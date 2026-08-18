@@ -76,7 +76,7 @@ REPLACE_DICT = {
                 '<race>': 'traveler', '<Race>': 'Traveler',
                 '<class>': 'adventurer', '<Class>': 'Adventurer',
                  '—':',', '--':',', " - ":", ",
-                 
+
                  # Factions / Regions
                  "Draenei": "Dray-nai",
                 "Lordaeron": "Lor-deron",
@@ -240,6 +240,8 @@ VOICE_MODEL_MAP = {
 
 # maps questgiver IDs to effect types
 NPC_EFFECTS = {
+    31:"ghost",
+    61:"ghost",
     302: "ghost",
     392: "ghost",
     2076:"bubbles",
@@ -251,6 +253,7 @@ NPC_EFFECTS = {
     9598:"ghost",
     10666:"undead",
     10684:"ghost",
+    10076:"ghost",
     10926:"ghost",
     1733:"demon",
     18261:"demon",
@@ -310,6 +313,8 @@ NPC_EFFECTS = {
     27226:"ghost", #forgotten peasant
     23730:"underwater", #harold lagras
     29455:"underwater", #gerk
+    173265:"underwater", #wooden outhouse (searing gorge)
+    23569:"underwater", #Renn Mcgill
     19488:"undead", #custodian dieworth
     19489:"undead", #lieutenant-sorcerer morran
     20463:"undead", #apprentice andrethan
