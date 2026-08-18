@@ -333,6 +333,8 @@ SELECT
     source,
     quest,
     IFNULL(NULLIF(lq.title, ''), quest_title) as quest_title,
+    ALL_DATA.quest_title as original_quest_title,
+    ALL_DATA.name as original_name,
     IFNULL(NULLIF(CASE source
         WHEN 'gossip' THEN (CASE
             WHEN broadcast_text_id = 0 THEN qg.Greeting
@@ -367,9 +369,9 @@ FROM ALL_DATA
     
     LEFT JOIN wotlk_mangos.creature_template_locale lc  ON lc.entry = ALL_DATA.id AND type = 'creature' AND lc.locale = %(langStr)s 
     
-    LEFT JOIN wotlk_mangos.gameobject_template_locale     lg  ON lg .entry = ALL_DATA.id AND type = 'gameobject' AND lg.locale = %(langStr)s
+    LEFT JOIN wotlk_mangos.gameobject_template_locale     lg  ON lg.entry = ALL_DATA.id AND type = 'gameobject' AND lg.locale = %(langStr)s
     
-    LEFT JOIN wotlk_mangos.item_template_locale           li  ON li .ID = ALL_DATA.id AND type = 'item' AND li.locale = %(langStr)s
+    LEFT JOIN wotlk_mangos.item_template_locale           li  ON li.ID = ALL_DATA.id AND type = 'item' AND li.locale = %(langStr)s
     
     LEFT JOIN wotlk_mangos.quest_greeting_locale         qg  ON qg.ID = ALL_DATA.id AND qg.type = (CASE ALL_DATA.type WHEN 'creature' THEN 0 WHEN 'gameobject' THEN 1 ELSE -1 END) AND qg.locale = %(langStr)s
     
