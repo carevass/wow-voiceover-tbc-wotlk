@@ -208,7 +208,7 @@ function Addon:QUEST_DETAIL()
     local guid = Utils:GetNPCGUID()
     local targetName = Utils:GetNPCName()
 
-    print("Quest ID: ",questID)
+    --print("Quest ID: ",questID)
 
     if not questID or questID == 0 then
     -- Try fallback: look up by quest title
@@ -293,6 +293,8 @@ function Addon:QUEST_COMPLETE()
     local questText = GetRewardText()
     local guid = Utils:GetNPCGUID()
     local targetName = Utils:GetNPCName()
+
+    --print(questID)
 
     if not questID or questID == 0 then
         return
