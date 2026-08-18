@@ -6,8 +6,7 @@ services:
     container_name: wow_vo
     image: wow_vo:latest
     networks:
-      - frontend
-      - backend
+      - webui_network
     deploy:
       resources:
         reservations:
@@ -18,7 +17,7 @@ services:
         - action: sync
           path: .
           target: /app
-
+    restart: unless-stopped
     shm_size: "8g"
     volumes:
       - ./inputs:/app/inputs
@@ -44,11 +43,11 @@ services:
     volumes:
       - wow_vo_webui-data:/var/lib/mysql
     networks:
-      - backend
+      - webui_network
     ports:
       - "4227:3306"
+    restart: unless-stopped
 networks:
-  frontend:
-  backend:
+  webui_network:
 volumes:
   wow_vo_webui-data:
