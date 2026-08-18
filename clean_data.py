@@ -91,8 +91,6 @@ def clean_quest_data(tts_processor):
 
     # Define the mapping of old values to new values
     replace_map = {
-        'scourge_male': 'forsaken_male',
-        'scourge_female': 'forsaken_female',
         'icetroll_male': 'troll_male',
         'narrator_male': 'narrator',
         'taunka_male': 'tauren_male',
