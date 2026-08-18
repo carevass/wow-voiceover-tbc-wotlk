@@ -29,7 +29,7 @@ local LOAD_ALL_MODULES = true
 ---@field ObjectNameLookupByObjectID table<number, string> Maps GameObject ID to GameObject name
 ---@field ItemNameLookupByItemID table<number, string> Maps Item ID to Item name
 ---@field SoundLengthLookupByFileName table<string, number> Maps sound filenames to their duration in seconds
----@field MultiSpeakerQuests table<number, string|table<string, string>> Maps quest ids with multiple speakers to racegender combinations
+---@field MultiSpeakerQuests table<string, table<number, table<string, string>>> Maps event suffixes to quest IDs, which map race-gender combinations to audio prefixes
 ---@field MultiSpeakerGossip table<string, string, table<string, string>> Maps npc names with multiple speakers to correct audio hash
 ---@field MultiSpeakerQuestLog table<number, string> Maps quest ids with multiple speakers to racegender combinations
 
