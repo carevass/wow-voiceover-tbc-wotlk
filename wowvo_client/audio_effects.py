@@ -224,12 +224,21 @@ def demon_effects(mp3_path, voice_key):
             'gain','-n',
         ], check=True)
     elif voice_key in ('akama'):
-        print("abomination effects...", flush = True)
+        print("akama effects...", flush = True)
         subprocess.run([
             'sox', working_path, changed,
             'pitch', '-250',
             'reverb', '15', '35', '20', '1', '80', '-5',
             'gain','3',
+            'gain','-n',
+        ], check=True)
+    elif voice_key in ('dryad'):
+        print("dryad effects...", flush = True)
+        subprocess.run([
+            'sox', working_path, changed,
+            'echo', '0.8', '0.70', '130', '0.15',
+            'reverb', '15', '35', '30', '10', '40', '-10',
+            'gain','1',
             'gain','-n',
         ], check=True)
     else:
