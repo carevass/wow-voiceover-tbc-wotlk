@@ -8,13 +8,17 @@ from data_prep.sql_queries import query_dataframe_for_all_quests_and_gossip
 
 def clean_quest_data(tts_processor):
 
+    #language_code = "deDE"
     language_code = "enUS"
     language_number = utils.language_code_to_language_number(language_code)
-    print(f"Selected language: {language_code}")
+    print(f"Selected language: {language_code} {language_code} ")
 
     #Load data from our SQL query with tbc/wotlk data
-    df = query_dataframe_for_all_quests_and_gossip(language_number)
+    df = query_dataframe_for_all_quests_and_gossip(language_number, language_code)
     print("Data query OK.", flush = True)
+
+    #df.to_csv("testLocales_cleaned_quest_data.csv", index=False, encoding='utf-8')
+    #print(f"✅ saved in file: testLocales_cleaned_quest_data.csv")
 
     #mark custom models with -77 for sex and gender so code doesn't break when hashing
     mask = df['DisplayRaceID'].isna() & df['DisplaySexID'].isna()
