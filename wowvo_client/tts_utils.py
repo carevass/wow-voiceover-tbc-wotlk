@@ -150,7 +150,7 @@ class TTSProcessor(TTSEngine):
 
         return voice_path
 
-    def tts(self, text, voice_name, output_name, output_subfolder, forceGen=False, questgiver_id=None,
+    def tts(self, text, voice_name, output_name, output_subfolder, forceGen=True, questgiver_id=None,
                           temperature = 0.75, length_penalty = 1.0, repetition_penalty = 10.0,
                           top_k = 1, top_p = 1.0, speed = 1.05, f0_up_key = 0, f0_method = "rmvpe",
                           index_rate = 0.70, filter_radius = 3, resample_sr = 0, rms_mix_rate = 1,
@@ -242,7 +242,7 @@ class TTSProcessor(TTSEngine):
         if voice_key.endswith("_dk"):
             print(f"DK post-processing for {outpath}")
             dk_effects(outpath, voice_key)
-        elif voice_key in ("sylvanas", "forsaken_male", "forsaken_female",'lich_king'):
+        elif voice_key in ("sylvanas", "scourge_male", "scourge_female",'lich_king'):
             print(f"Undead post-processing for {outpath}")
             undead_effects(outpath)
         elif voice_key in ("mechanical", "titan_male"):
@@ -250,7 +250,7 @@ class TTSProcessor(TTSEngine):
             robot_effects(outpath)
         elif voice_key in ("demon_male", "demon_female","keeper", "dragon_male", "dragon_female",
             'fire_elemental','water_elemental',"earth_elemental","wind_elemental",
-            'abomination', 'bone_witch','sanlayn', 'akama'):
+            'abomination', 'bone_witch','sanlayn', 'akama', 'dryad'):
             print(f"Demon post-processing for {outpath}")
             demon_effects(outpath, voice_key)
         elif voice_key in ("giant_male", "ogre_male", "ogrila_ogre","ancient", "murloc", "mountain_giant","cairne"):
