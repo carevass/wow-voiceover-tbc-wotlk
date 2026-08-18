@@ -25,21 +25,18 @@ local EventSuffixes = {
 local function IsMultiSpeakerEvent(questID, event, npc_name)
     local suffix = EventSuffixes[event] or "gossip"
     for _, module in DataModules:GetModules() do
-        -- 1. Fast check: If it's a Quest Log override, immediately exclude it
         local data3 = module.MultiSpeakerQuestLog
-        if data3 and questID and data3[questID] then
-            return false
+        local isQuestLogPlayback = (QuestLogFrame and QuestLogFrame:IsShown()) or (QuestMapFrame and QuestMapFrame:IsShown())
+        if data3 and data3[questID] and isQuestLogPlayback then
+          return false
         end
-
+        local data = module.MultiSpeakerQuests
+        if data and data[suffix] and questID and data[suffix][questID] then
+            return true
+        end
         -- 2. Check Gossip overrides
         local data2 = module.MultiSpeakerGossip
         if data2 and npc_name and data2[npc_name] then
-            return true
-        end
-
-        -- 3. Check Quest overrides
-        local data = module.MultiSpeakerQuests
-        if data and data[suffix] and questID and data[suffix][questID] then
             return true
         end
     end
@@ -83,13 +80,19 @@ local stutteringModels = {
     [124315] = true, -- gyrocopter
     [124186] = true, -- gnoll caster
     [123200] = true, -- chicken
+    [124243] = true, -- harvest golem
+    [124225] = true, -- goblin shredder
+    [123105] = true, -- bogbeasts
+    [124224] = true, -- goblin flightmaster
+    [124694] = true, -- kodos
+    [123961] = true, -- abominations
 }
 
 -- Helper to decide which animation to use
 local function GetTalkAnimationForModel(model)
     local fileID = model:GetModelFileID()
-    local pathid = model:GetModel()
-    print(pathid)
+    --local pathid = model:GetModel()
+    --print(pathid)
 
     -- BloodElfFemale standard and HD → force leaning-forward talk
     if fileID == 116921 or fileID == 1100258 or fileID == 234701 or fileID == 124495 or fileID == 234501 then
