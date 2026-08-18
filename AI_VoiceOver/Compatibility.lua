@@ -449,6 +449,12 @@ if Version:IsBelowLegacyVersion(70000) then
             ["creature/gyrocopter/gyrocopter_02"]                       = 124315,
             ["creature/gnollcaster/gnollcaster"]                        = 124186,
             ["creature/chicken/chicken"]                                = 123200,
+            ["creature/golemharveststage2/golemharveststage2"]          = 124243,
+            ["creature/goblin/goblinshredder"]                          = 124225,
+            ["creature/bogbeast/bogbeast"]                              = 123105,
+            ["creature/goblin/goblin"]                                  = 124224,
+            ["creature/kodobeast/kodobeast"]                            = 124694,
+            ["creature/fleshgolem/fleshgolem"]                          = 123961,
 
         },
         ["HD"] = {
