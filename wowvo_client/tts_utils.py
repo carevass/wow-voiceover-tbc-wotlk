@@ -180,6 +180,9 @@ class TTSProcessor(TTSEngine):
         if os.path.isfile(outpath) and not forceGen:
             print("duplicate generation, skipping")
             return
+        if voice_name in ('custom_custom'):
+            print(f"Skipping unassigned entry")
+            return
         #replace default emotion to count as None for the audio path logic to work
         if emotion == "default":
             emotion = None
@@ -189,6 +192,7 @@ class TTSProcessor(TTSEngine):
         if not len(voice_path)>=1:
             print(f"Voice sample not found: {voice_name}")
             return
+
         # Set model_dir based on mapped voice, or voice_name
         model_dir = f"fine_tuned/{mapped_voice}"
 
@@ -486,7 +490,10 @@ class TTSProcessor(TTSEngine):
                 if row['multi_name'] is not None:
                     quest_id = int(row['quest'])
                     npc_name = row['name']
-                    voicename = row['multi_name']
+                    if row['multi_name'].endswith("dk"):
+                        voicename = row['multi_name'][:-2]
+                    else:
+                        voicename = row['multi_name']
 
                     if source not in multispeaker_table:
                         multispeaker_table[source] = {}
@@ -508,7 +515,10 @@ class TTSProcessor(TTSEngine):
         accept_df = df[df['source'] == 'accept']
         for i, row in tqdm(accept_df.iterrows()):
             if row['multi_name'] is not None:
-                multispeaker_table[int(row['quest'])] = row['multi_name']
+                if row['multi_name'].endswith("dk"):
+                    multispeaker_table[int(row['quest'])] = row['multi_name'][:-2]
+                else:
+                    multispeaker_table[int(row['quest'])] = row['multi_name']
 
         with open(output_file, "w", encoding="UTF-8") as f:
             f.write(DATAMODULE_TABLE_GUARD_CLAUSE + "\n")
@@ -529,9 +539,12 @@ class TTSProcessor(TTSEngine):
                 if row['multi_name'] is not None:
                     npc_name = row['name']
                     escaped_npc_name = npc_name.replace('"', '\'').replace('\r',' ').replace('\n',' ')
-                    voicename = row['multi_name']
                     gossip_hash = row['templateText_race_gender_hash']
                     escapedText = row['text'].replace('"', '\'').replace('\r',' ').replace('\n',' ')
+                    if row['multi_name'].endswith("dk"):
+                        voicename = row['multi_name'][:-2]
+                    else:
+                        voicename = row['multi_name']
 
                     if escaped_npc_name not in multispeaker_table:
                         multispeaker_table[escaped_npc_name] = {}
