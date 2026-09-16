@@ -39,6 +39,7 @@ def clean_quest_data(tts_processor):
     df['expansion'] = np.select(conditions, choices, default=-1)
 
     # Mask to identify rows where expansion == -1
+    #i.e., gameobjects not categorized in previous replacement 
     mask = df['expansion'] == -1
 
     # Subset the DataFrame
@@ -98,7 +99,8 @@ def clean_quest_data(tts_processor):
         'icetroll_male': 'troll_male',
         'narrator_male': 'narrator',
         'taunka_male': 'tauren_male',
-        'naga_female':'demon_female'
+        'naga_female':'demon_female',
+        'gnoll_male':'gnoll',
     }
 
     # Apply the replacement
