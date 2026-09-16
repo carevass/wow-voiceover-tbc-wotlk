@@ -46,6 +46,7 @@ RACE_DICT = {
     43: 'furbolg', #added not in website
     44: 'wolvar', #added not in website
     45: 'gorloc', #added not in website
+    46: 'gnoll', #added not in website
     52: 'dracthyr',
     70: 'dracthyr',
     -77:'custom'
@@ -194,7 +195,7 @@ VOICE_MODEL_MAP = {
     "wolvar_male": "rexxar",
     "gorloc_male": "furbolg_male",
     "cairne":"big_creature",
-
+    "gnoll": "rexxar",
     #dragon
     "dragon_female":"tauren_female",
     "dragon_male":"demon_male",
@@ -249,6 +250,9 @@ NPC_EFFECTS = {
     2278:"ghost",
     4606:"ghost",
     6491:"ghost",
+    5353:"demon", #itharius (swamp of sorrows)
+    8888:"ghost", #franclorn forgewright
+    9039:"ghost", #doom'rel
     5397:"giant",
     9598:"ghost",
     10666:"undead",
