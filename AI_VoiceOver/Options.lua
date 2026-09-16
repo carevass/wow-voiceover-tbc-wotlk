@@ -257,6 +257,22 @@ local GeneralTab =
                         SoundQueueUI:RefreshConfig()
                     end,
                 },
+                PlayDailies = (Version:IsRetailOrAboveLegacyVersion(30300) or nil) and {
+                    type = "select",
+                    width = 1.1,
+                    order = 3,
+                    name = "Play Audio for Daily Quests",
+                    desc = "Controls whether VoiceOver will play dialog for dailies.",
+                    values = {
+                        [Enums.PlayDailies.Always] = "Always",
+                        [Enums.PlayDailies.Never] = "Never",
+                    },
+                    get = function(info) return Addon.db.profile.Audio.PlayDailies end,
+                    set = function(info, value)
+                        Addon.db.profile.Audio.PlayDailies = value
+                        SoundQueueUI:RefreshConfig()
+                    end,
+                },
                 AutoToggleDialog = (Version.IsLegacyVanilla or Version:IsRetailOrAboveLegacyVersion(60100) or nil) and {
                     type = "toggle",
                     width = 2.25,

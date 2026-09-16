@@ -18,6 +18,7 @@ local defaults = {
         },
         Audio = {
             GossipFrequency = Enums.GossipFrequency.OncePerQuestNPC,
+            PlayDailies = Enums.PlayDailies.Always,
             SoundChannel = Enums.SoundChannel.Master,
             AutoToggleDialog = Version.IsLegacyVanilla or Version:IsRetailOrAboveLegacyVersion(60100),
             StopAudioOnDisengage = false,
@@ -199,6 +200,17 @@ local function QuestSoundDataAdded(soundData)
     currentQuestSoundData = soundData
 end
 
+function Addon:ShouldPlayQuest(guid)
+    local npcKey = guid or "unknown"
+    local isDaily = QuestIsDaily()
+
+    if isDaily and self.db.profile.Audio.PlayDailies == Enums.PlayDailies.Never then
+        return
+    end
+    return true, npcKey
+end
+
+
 local GetTitleText = GetTitleText -- Store original function before EQL3 (Extended Quest Log 3) overrides it and starts prepending quest level
 function Addon:QUEST_DETAIL()
     local questID = GetQuestID()
@@ -208,7 +220,12 @@ function Addon:QUEST_DETAIL()
     local guid = Utils:GetNPCGUID()
     local targetName = Utils:GetNPCName()
 
-    --print("Quest ID: ",questID)
+    print("Quest ID: ",questID)
+
+    local play, npcKey = self:ShouldPlayQuest(guid)
+    if not play then
+        return
+    end
 
     if not questID or questID == 0 then
     -- Try fallback: look up by quest title
@@ -260,6 +277,11 @@ function Addon:QUEST_PROGRESS()
     local guid = Utils:GetNPCGUID()
     local targetName = Utils:GetNPCName()
 
+    local play, npcKey = self:ShouldPlayQuest(guid)
+    if not play then
+        return
+    end
+
     if not questID or questID == 0 then
         return
     end
@@ -294,7 +316,12 @@ function Addon:QUEST_COMPLETE()
     local guid = Utils:GetNPCGUID()
     local targetName = Utils:GetNPCName()
 
-    --print(questID)
+    print(questID)
+
+    local play, npcKey = self:ShouldPlayQuest(guid)
+    if not play then
+        return
+    end
 
     if not questID or questID == 0 then
         return

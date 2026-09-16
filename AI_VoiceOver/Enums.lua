@@ -31,6 +31,13 @@ Enums.GossipFrequency =
     Never = 4,
 }
 
+---@enum PlayDailies
+Enums.PlayDailies =
+{
+    Always = 1,
+    Never = 0,
+}
+
 ---@enum SoundChannel
 Enums.SoundChannel =
 {
