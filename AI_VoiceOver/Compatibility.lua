@@ -455,6 +455,17 @@ if Version:IsBelowLegacyVersion(70000) then
             ["creature/goblin/goblin"]                                  = 124224,
             ["creature/kodobeast/kodobeast"]                            = 124694,
             ["creature/fleshgolem/fleshgolem"]                          = 123961,
+            ["creature/seaturtle/seaturtle"]                            = 125837,
+            ["creature/gnoll/gnoll"]                                    = 124173,
+            ["creature/lostone/lostone"]                                = 124809,
+            ["creature/kodobeast/kodobeastpack"]                        = 124695,
+            ["creature/dragonspawn/dragonspawn"]                        = 123543,
+            ["creature/golemstone/golemcannonstone"]                    = 124247,
+            ["creature/succubus/succubus"]                              = 126081,
+            ["creature/mounteddeathknight/mounteddeathknight"]          = 124984,
+
+
+
 
         },
         ["HD"] = {

@@ -86,6 +86,14 @@ local stutteringModels = {
     [124224] = true, -- goblin flightmaster
     [124694] = true, -- kodos
     [123961] = true, -- abominations
+    [125837] = true, -- turtles
+    [124173] = true, -- gnoll
+    [124809] = true, -- lost one
+    [124695] = true, -- kodo pack animal
+    [123543] = true, -- dragonspawn
+    [124247] = true, -- stone golem (brd)
+    [126081] = true, -- succubus (brd)
+    [124984] = true, -- rivendare (dk quests)
 }
 
 -- Helper to decide which animation to use

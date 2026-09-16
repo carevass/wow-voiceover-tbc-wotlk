@@ -127,6 +127,7 @@ function DataModules:GetQuestFileName(soundData, suffix)
               if questID and data[suffix][questID] then
                   -- Check if the interacting NPC name is mapped to a prefix
                   local prefix = data[suffix][questID][speaker]
+
                   if prefix then
                       -- Return the custom multi-speaker format: "prefix-questID-suffix"
                       return format("%s-%d-%s", prefix, questID, suffix)
@@ -431,7 +432,7 @@ function DataModules:GetQuestID(source, title, npcName, text)
     local cleanedText = replaceDoubleQuotes(getFirstNWords(text, 20)) ..
         " " .. replaceDoubleQuotes(getLastNWords(text, 20))
     local text_entries = {}
-
+    
     for _, module in self:GetModules() do
 
         local data = module.QuestIDLookup
