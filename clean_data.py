@@ -2,7 +2,7 @@ from wowvo_client.consts import race_gender_tuple_to_strings
 from wowvo_client import utils
 import numpy as np
 import pandas as pd
-from corrections.corrections import recode_expansions, apply_corrections, add_new_entries
+from corrections.corrections import recode_sex_race, recode_expansions, apply_corrections, add_new_entries
 from data_prep.sql_queries import query_dataframe_for_all_quests_and_gossip
 
 
@@ -39,7 +39,7 @@ def clean_quest_data(tts_processor):
     df['expansion'] = np.select(conditions, choices, default=-1)
 
     # Mask to identify rows where expansion == -1
-    #i.e., gameobjects not categorized in previous replacement 
+    #i.e., gameobjects not categorized in previous replacement
     mask = df['expansion'] == -1
 
     # Subset the DataFrame
@@ -61,6 +61,8 @@ def clean_quest_data(tts_processor):
     # recategorize expansion from corrections file before filtering, this will eliminate some vanilla npcs that are being
     # wrongly categorized as tbc in the logic above
     #do corrections
+
+
     df = recode_expansions(df, "corrections/corrections.xlsx")
     print("recoding expansions for NPCs and quests ...", flush = True)
 
@@ -79,15 +81,19 @@ def clean_quest_data(tts_processor):
         (df['DisplayRaceID'] == -77) |
         ((df['DisplayRaceID'] == 8) & (df['DisplaySexID'] == 0))
     ]
-    #add missing quest entries from excel; note all columns must be filled out
 
+    df = recode_sex_race(df, "corrections/corrections.xlsx")
+    print("recoding sex and race for some custom models ...", flush = True)
+
+    #add missing quest & gossip entries from excel; note all columns must be filled out
     df = add_new_entries(df,"corrections/new_entries.xlsx")
     print("Applying new entries ...", flush = True)
 
 
+
     #add the new columns
     df = tts_processor.preprocess_dataframe(df)
-
+    df['voice_name'], df['templateText_race_gender_hash'] = tts_processor.create_hash(df)
 
     #do corrections
     df = apply_corrections(df, "corrections/corrections.xlsx")

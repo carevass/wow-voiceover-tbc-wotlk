@@ -1,5 +1,35 @@
 import pandas as pd
 
+def recode_sex_race(df, corrections_path):
+
+    # Load the corrections Excel file
+    id_corrections = pd.read_excel(corrections_path, sheet_name = 'npc', dtype={"id": int, "source":str})
+    id_corrections = id_corrections[['id','DisplayRaceID','DisplaySexID']][~id_corrections['DisplayRaceID'].isnull()]
+
+    #make a copy of the dataframe we pass initially
+    merged = df.copy()
+
+    # --- Apply corrections by id ---
+    #if there are corrections by id (the df is not empty)
+    if not id_corrections.empty:
+        #merge original df with id corrections df, left join suffixing columns from the id corrections with _corr
+        merged = merged.merge(
+            id_corrections,
+            on='id',
+            how='left',
+            suffixes=('', '_corr')
+        )
+
+        #iterate over columns in the corrections dataframe
+        for col in id_corrections.columns:
+            #skip over the id column when iterating for the subsequent operations
+            if col !='id':
+                #replace value of the original column with the one from the corrections df
+                merged[col] = merged[f"{col}_corr"].combine_first(merged[col])
+                #drop the corrections column from the final dataset when finished
+                merged.drop(columns=[f"{col}_corr"], inplace=True)
+    return merged
+
 def recode_expansions(df, corrections_path):
 
     # Load the corrections Excel file
@@ -79,7 +109,7 @@ def apply_corrections(df, corrections_path):
     q_corrections_spec = quest_corrections[quest_corrections['source'].notna()]
 
     #corrections by npc; dropping the expansion label because we are separating that from the other corrections
-    id_corrections = pd.read_excel(corrections_path, sheet_name = 'npc', dtype={"id": int, "source":str}).drop(["expansion"], axis=1)
+    id_corrections = pd.read_excel(corrections_path, sheet_name = 'npc', dtype={"id": int, "source":str}).drop(["expansion",'DisplayRaceID','DisplaySexID'], axis=1)
 
     #make a copy of the dataframe we pass initially
     merged = df.copy()
