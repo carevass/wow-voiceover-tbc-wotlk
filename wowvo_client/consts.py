@@ -357,6 +357,7 @@ NPC_EFFECTS = {
     16816:"ghost", #echo of medivh
     26673:"ghost", #image of archmage modera
     17468:"undead", #prophet velen
+    29480:"undead", #Grimwing
     29481:"giant", #lok'lira the crone (inside)
     30395:"ghost", #chieftain swiftspear
     30074:"undead", #the leaper
