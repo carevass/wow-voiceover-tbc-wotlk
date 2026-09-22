@@ -321,10 +321,8 @@ class TTSProcessor(TTSEngine):
 
         df['race'] = df['DisplayRaceID'].map(RACE_DICT)
         df['gender'] = df['DisplaySexID'].map(GENDER_DICT)
-        #df['voice_name'] = df['race'] + '_' + df['gender']
 
         df['templateText_race_gender'] = df['original_text'] + df['race'] + df['gender']
-        #df['templateText_race_gender_hash'] = df['templateText_race_gender'].apply(get_hash)
         return (df['race'] + '_' + df['gender']), (df['templateText_race_gender'].apply(get_hash))
     def preprocess_dataframe(self, df):
         df = df.copy() # prevent mutation on original df for safety
